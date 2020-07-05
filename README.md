@@ -8,7 +8,7 @@ compress and uncompress for Deno
 
 ## useage  
 ```ts
-import { tar, gzip, tgz, zip } from "https://deno.land/x/compress@v0.0.1/mod.ts";
+import { tar, gzip, tgz, zip } from "https://deno.land/x/compress@v0.0.2/mod.ts";
 
 export interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
@@ -31,7 +31,7 @@ await zip.uncompress(src, dest);
 
 ### tar
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.0.1/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.0.2/mod.ts";
 
 // compress folder
 await tar.compress("./test","./test.tar");
