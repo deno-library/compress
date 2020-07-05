@@ -32,15 +32,16 @@ export async function compress(
     const appendFolder = async (folder: string, prefix?: string) => {
       for await (const { isDirectory, name } of Deno.readDir(folder)) {
         const fileName = prefix ? `${prefix}/${name}` : name;
+        const filePath = resolve(folder, name);
         if (isDirectory) {
           await tar.append(
             `${fileName}/`,
             { reader: new Deno.Buffer(), contentSize: 0 },
           );
-          await appendFolder(resolve(folder, name), fileName);
+          await appendFolder(filePath, fileName);
         } else {
           await tar.append(fileName, {
-            filePath: resolve(folder, name),
+            filePath,
           });
         }
       }
