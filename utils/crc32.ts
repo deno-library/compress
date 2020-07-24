@@ -26,12 +26,13 @@ export class Crc32Stream {
   private poly = 0xEDB88320;
   private crc = 0 ^ -1;
   private encoder = new TextEncoder();
+  #crc32: string = "";
 
   constructor() {
     this.init();
   }
 
-  init() {
+  private init(): void {
     let c, n, k;
 
     for (n = 0; n < 256; n += 1) {
@@ -47,11 +48,11 @@ export class Crc32Stream {
     }
   }
 
-  reset() {
+  reset(): void {
     this.init();
   }
 
-  append(arr: Uint8Array | string) {
+  append(arr: Uint8Array | string): string {
     if (typeof arr === "string") {
       arr = this.encoder.encode(arr);
     }
@@ -63,7 +64,11 @@ export class Crc32Stream {
     }
 
     this.crc = crc;
+    this.#crc32 = numberToHex(crc ^ -1);
+    return this.#crc32;
+  }
 
-    return numberToHex(crc ^ -1);
+  get crc32(): string {
+    return this.#crc32;
   }
 }

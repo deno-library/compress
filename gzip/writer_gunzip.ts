@@ -15,16 +15,13 @@ export default class Writer extends EventEmitter implements Deno.Writer {
   private chuncks: Uint8Array[] = [];
   private onceSize: number;
   private chuncksBytes = 0;
-  private fn: Function;
 
   constructor(
     path: string,
-    fn: Function,
     options?: Options,
   ) {
     super();
     this.path = path;
-    this.fn = fn;
     this.onceSize = options?.onceSize ?? 1024 * 1024;
   }
 
@@ -45,10 +42,10 @@ export default class Writer extends EventEmitter implements Deno.Writer {
 
     if (this.chuncksBytes >= this.onceSize) {
       const buf = concatUint8Array(this.chuncks);
-      console.log(buf)
-      console.log(gunzip(buf))
-      await Deno.writeAll(this.writer, this.fn(buf));
-      
+      console.log(buf);
+      console.log(gunzip(buf));
+      await Deno.writeAll(this.writer, gunzip(buf));
+
       this.chuncks.length = 0;
       // this.chuncks.push(new Uint8Array([31, 139, 8, 0, 0, 0, 0, 0, 0]));
       this.chuncksBytes = 0;
@@ -60,7 +57,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
   async close(): Promise<void> {
     if (this.chuncks.length > 0) {
       const buf = concatUint8Array(this.chuncks);
-      await Deno.writeAll(this.writer, this.fn(buf, undefined));
+      await Deno.writeAll(this.writer, gunzip(buf));
     }
     this.emit("bytesWritten", this.bytesWritten);
     Deno.close(this.writer.rid);

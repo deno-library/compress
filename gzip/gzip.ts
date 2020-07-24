@@ -56,7 +56,7 @@ function putShort(n: number, arr: number[]) {
 }
 
 // LSB first
-function putLong(n: number, arr: number[]) {
+export function putLong(n: number, arr: number[]) {
   putShort(n & 0xffff, arr);
   putShort(n >>> 16, arr);
 }
@@ -115,17 +115,61 @@ function readBytes(arr: number[], n: number) {
 }
 
 interface Options {
-  level: number;
+  level?: number;
   timestamp?: number;
   name?: string;
 }
 
-export function gzip(
-  bytes: Uint8Array,
-  options: Options = { level: DEFAULT_LEVEL },
+export function getHeader(
+  options: Options = {},
 ): Uint8Array {
   let flags: number = 0;
-  let level: number = options.level;
+  let level: number = options.level ?? DEFAULT_LEVEL;
+  const out: number[] = [];
+
+  putByte(ID1, out);
+  putByte(ID2, out);
+
+  putByte(compressionMethods["deflate"], out);
+
+  if (options.name) {
+    flags |= possibleFlags["FNAME"];
+  }
+
+  putByte(flags, out);
+  putLong(options.timestamp || Math.floor(Date.now() / 1000), out);
+
+  // put deflate args (extra flags)
+  if (level === 1) {
+    // fastest algorithm
+    putByte(4, out);
+  } else if (level === 9) {
+    // maximum compression (fastest algorithm)
+    putByte(2, out);
+  } else {
+    putByte(0, out);
+  }
+
+  // OS identifier
+  putByte(osCode, out);
+
+  if (options.name) {
+    // ignore the directory part
+    putString(options.name.substring(options.name.lastIndexOf("/") + 1), out);
+
+    // terminating null
+    putByte(0, out);
+  }
+
+  return new Uint8Array(out);
+}
+
+export function gzip(
+  bytes: Uint8Array,
+  options: Options = {},
+): Uint8Array {
+  let flags: number = 0;
+  let level: number = options.level ?? DEFAULT_LEVEL;
   const out: number[] = [];
 
   putByte(ID1, out);

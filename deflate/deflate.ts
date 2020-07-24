@@ -46,7 +46,7 @@ const REPZ_11_138 = 18;
 const HEAP_SIZE = 2 * L_CODES + 1;
 const H_SHIFT = Math.floor((HASH_BITS + MIN_MATCH - 1) / MIN_MATCH);
 /* letiables */
-let free_queue: any,
+let free_queue: DeflateBuffer | null = null,
   qhead: DeflateBuffer | null,
   qtail: DeflateBuffer,
   initflag: boolean,
@@ -155,7 +155,7 @@ class DeflateConfiguration {
 class DeflateBuffer {
   next: any = null;
   len: number = 0;
-  ptr: [] = []; // new Array(OUTBUFSIZ); // ptr.length is never read
+  ptr: number[] = []; // new Array(OUTBUFSIZ); // ptr.length is never read
   off: number = 0;
 }
 

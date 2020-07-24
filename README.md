@@ -65,14 +65,14 @@ class GzipStream {
 
 __exmaple__
 ```ts
-import { gzip, gunzip, GzipSteam } from "https://deno.land/x/compress@v0.0.2/mod.ts";
+import { gzip, gunzip, GzipStream } from "https://deno.land/x/compress@v0.0.2/mod.ts";
 // gzip
 const bytes = new TextEncoder().encode("hello");
 const compressed = gzip(bytes);
 // gunzip
 const decompressed = gunzip(compressed);
-// GzipSteam, only supports compressing and decompressing a single file.
-const gzip = new GzipSteam();
+// GzipStream, only supports compressing and decompressing a single file.
+const gzip = new GzipStream();
 await gzip.compress("./deno.txt", "./deno.txt.gz");
 await gzip.uncompress("./deno.txt.gz", "./deno.txt");
 ```

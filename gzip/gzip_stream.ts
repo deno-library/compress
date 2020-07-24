@@ -1,6 +1,6 @@
-import { gzip, gunzip } from "./gzip.ts";
 import { EventEmitter } from "../deps.ts";
-import Writer from "./writer_decode.ts";
+import GzipWriter from "./writer_gzip.ts";
+import GunzipWriter from "./writer_gunzip.ts";
 
 export class GzipStream extends EventEmitter {
   constructor() {
@@ -8,73 +8,20 @@ export class GzipStream extends EventEmitter {
   }
 
   async compress(src: string, dest: string): Promise<void> {
-    const size = (await Deno.stat(src)).size;
-    const reader = await Deno.open(src, {
-      read: true,
-    });
-    // writer
-    const writer = await Deno.open(dest, {
-      write: true,
-      create: true,
-      truncate: true,
-    });
-    const data = await Deno.readAll(reader);
-    await Deno.writeAll(writer, gzip(data));
-    // return this.compose(src, dest, gzip);
-  }
-
-  async uncompress(src: string, dest: string): Promise<void> {
-    const size = (await Deno.stat(src)).size;
-    const reader = await Deno.open(src, {
-      read: true,
-    });
-    // writer
-    const writer = await Deno.open(dest, {
-      write: true,
-      create: true,
-      truncate: true,
-    });
-    const data = await Deno.readAll(reader);
-    await Deno.writeAll(writer, gunzip(data));
-    // // reader
-    // const size = (await Deno.stat(src)).size;
-    // const reader = await Deno.open(src, {
-    //   read: true,
-    // });
-    // // writer
-    // const writer = new Writer(dest, gunzip, {
-    //   onceSize: size > 50 * 1024 * 1024 ? 1024 * 1024 : 512 * 1024,
-    // });
-    // await writer.setup();
-    // writer.on("bytesWritten", (bytesWritten: number) => {
-    //   const progress = (100 * bytesWritten / size).toFixed(2) + "%";
-    //   console.log(progress);
-    //   this.emit("progress", progress);
-    // });
-
-    // await Deno.copy(reader, writer, {
-    //   bufSize: 1024 * 1024,
-    // });
-
-    // await writer.close();
-    // reader.close();
-  }
-
-  private async compose(
-    src: string,
-    dest: string,
-    fn: Function,
-  ): Promise<void> {
     // reader
-    const size = (await Deno.stat(src)).size;
+    const stat = await Deno.stat(src);
+    const size = stat.size;
     const reader = await Deno.open(src, {
       read: true,
     });
     // writer
-    const writer = new Writer(dest, fn, {
+    const writer = new GzipWriter(dest, {
       onceSize: size > 50 * 1024 * 1024 ? 1024 * 1024 : 512 * 1024,
     });
-    await writer.setup();
+    await writer.setup(
+      src,
+      stat.mtime ? Math.round(stat.mtime.getTime() / 1000) : 0,
+    );
     writer.on("bytesWritten", (bytesWritten: number) => {
       const progress = (100 * bytesWritten / size).toFixed(2) + "%";
       console.log(progress);
@@ -101,6 +48,31 @@ export class GzipStream extends EventEmitter {
     //   }
     // }
 
+    await writer.close();
+    reader.close();
+  }
+
+  async uncompress(src: string, dest: string): Promise<void> {
+    // reader
+    const size = (await Deno.stat(src)).size;
+    const reader = await Deno.open(src, {
+      read: true,
+    });
+    // writer
+    const writer = new GunzipWriter(dest, {
+      onceSize: size > 50 * 1024 * 1024 ? 1024 * 1024 : 512 * 1024,
+    });
+    await writer.setup();
+    writer.on("bytesWritten", (bytesWritten: number) => {
+      const progress = (100 * bytesWritten / size).toFixed(2) + "%";
+      console.log(progress);
+      this.emit("progress", progress);
+    });
+    // write
+    await Deno.copy(reader, writer, {
+      bufSize: 1024 * 1024,
+    });
+    // close
     await writer.close();
     reader.close();
   }
