@@ -1,4 +1,4 @@
-import { crc32, Crc32Stream } from "../utils/crc32.ts";
+import { crc32 } from "../utils/crc32.ts";
 import { deflate, inflate } from "../deflate/mod.ts";
 
 // magic numbers marking this file as GZIP
@@ -62,8 +62,7 @@ function putLong(n: number, arr: number[]) {
 }
 
 function putString(s: string, arr: number[]) {
-  var i, len = s.length;
-  for (i = 0; i < len; i += 1) {
+  for (let i = 0, len = s.length; i < len; i += 1) {
     putByte(s.charCodeAt(i), arr);
   }
 }
@@ -77,8 +76,8 @@ function readShort(arr: number[]) {
 }
 
 function readLong(arr: number[]) {
-  var n1 = readShort(arr),
-    n2 = readShort(arr);
+  let n1 = readShort(arr);
+  let n2 = readShort(arr);
 
   // JavaScript can't handle bits in the position 32
   // we'll emulate this by removing the left-most bit (if it exists)
@@ -93,7 +92,7 @@ function readLong(arr: number[]) {
 }
 
 function readString(arr: number[]) {
-  var charArr = [];
+  const charArr = [];
 
   // turn all bytes into chars until the terminating null
   while (arr[0] !== 0) {
@@ -107,18 +106,11 @@ function readString(arr: number[]) {
   return charArr.join("");
 }
 
-/*
-	 * Reads n number of bytes and return as an array.
-	 *
-	 * @param arr- Array of bytes to read from
-	 * @param n- Number of bytes to read
-	 */
 function readBytes(arr: number[], n: number) {
-  var i, ret = [];
-  for (i = 0; i < n; i += 1) {
+  const ret = [];
+  for (let i = 0; i < n; i += 1) {
     ret.push(arr.shift());
   }
-
   return ret;
 }
 
@@ -182,13 +174,6 @@ export function gzip(
 
 export function gunzip(bytes: Uint8Array): Uint8Array {
   const arr = Array.from(bytes);
-  let t: number;
-  var flags,
-    mtime,
-    xFlags,
-    crc,
-    size,
-    res;
 
   // check the first two bytes for the magic numbers
   if (readByte(arr) !== ID1 || readByte(arr) !== ID2) {
@@ -198,14 +183,14 @@ export function gunzip(bytes: Uint8Array): Uint8Array {
     throw "Unsupported compression method";
   }
 
-  flags = readByte(arr);
-  mtime = readLong(arr);
-  xFlags = readByte(arr);
+  let flags: number = readByte(arr);
+  readLong(arr); // mtime
+  readByte(arr); // xFlags
   readByte(arr); // os, throw away
 
   // just throw away the bytes for now
   if (flags & possibleFlags["FEXTRA"]) {
-    t = readShort(arr);
+    let t: number = readShort(arr);
     readBytes(arr, t);
   }
 
@@ -226,7 +211,7 @@ export function gunzip(bytes: Uint8Array): Uint8Array {
 
   // give deflate everything but the last 8 bytes
   // the last 8 bytes are for the CRC32 checksum and filesize
-  res = inflate(new Uint8Array(arr.splice(0, arr.length - 8)));
+  let res: Uint8Array = inflate(new Uint8Array(arr.splice(0, arr.length - 8)));
 
   // if (flags & possibleFlags["FTEXT"]) {
   //   res = Array.prototype.map.call(res, function (byte) {
@@ -234,12 +219,12 @@ export function gunzip(bytes: Uint8Array): Uint8Array {
   //   }).join("");
   // }
 
-  crc = readLong(arr) >>> 0;
+  let crc: number = readLong(arr) >>> 0;
   if (crc !== parseInt(crc32(res), 16)) {
     throw "Checksum does not match";
   }
 
-  size = readLong(arr);
+  let size: number = readLong(arr);
   if (size !== res.length) {
     throw "Size of decompressed file not correct";
   }
