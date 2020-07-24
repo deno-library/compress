@@ -24,7 +24,6 @@ export class GzipStream extends EventEmitter {
     );
     writer.on("bytesWritten", (bytesWritten: number) => {
       const progress = (100 * bytesWritten / size).toFixed(2) + "%";
-      console.log(progress);
       this.emit("progress", progress);
     });
 
