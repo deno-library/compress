@@ -1,5 +1,5 @@
-import { Tar, Untar, ensureDir, resolve, basename } from "./deps.ts";
-import { compressInterface } from "./interface.ts";
+import { Tar, Untar, ensureDir, resolve, basename } from "../deps.ts";
+import { compressInterface } from "../interface.ts";
 
 export async function uncompress(src: string, dest: string): Promise<void> {
   const reader = await Deno.open(src, { read: true });

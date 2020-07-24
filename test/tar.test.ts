@@ -38,8 +38,8 @@ Deno.test("tar.compress folder", async () => {
 
 Deno.test("tar.uncompress", async () => {
   const src = "./test/deno.tar";
-  const dest = "./tar";
-  const landTxtPath = "./tar/archive/deno/land/land.txt";
+  const dest = "./tar-test";
+  const landTxtPath = "./tar-test/archive/deno/land/land.txt";
   const landTxtSize = 5;
   const landTxtContent = "land\n";
   try {
