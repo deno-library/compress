@@ -8,9 +8,10 @@ compress and uncompress for Deno
 * [ ] zip
 
 ## Useage  
+If you read and write files, need the following permissions
+> --allow-read --allow-write
 
 ### tar 
-> --allow-read --allow-write
 
 __defination__
 ```ts
@@ -25,7 +26,6 @@ tar.uncompress(src, dest): Promise<void>;
 __exmaple__
 ```ts
 import { tar } from "https://deno.land/x/compress@v0.0.2/mod.ts";
-
 // compress folder
 await tar.compress("./test","./test.tar");
 // compress folder, exclude src directory
@@ -46,13 +46,18 @@ assert(str === new TextDecoder().decode(decompressed));
 ```
 
 ### gzip
-Gzip only support compressing a single file. if you want to compress a dir with gzip, then you may need tgz instead.
-
-> --allow-read --allow-write --allow-net
+GzipStream only supports compressing and decompressing a single file.
 
 __defination__
 ```ts
-class Gzip {
+interface GzipOptions {
+  level: number;
+  timestamp?: number;
+  name?: string;
+}
+gzip(bytes: Uint8Array, options?:GzipOptions): Uint8Array;
+gunzip(bytes: Uint8Array): Uint8Array;
+class GzipStream {
   compress(src: string, dest: string): Promise<void>;
   uncompress(src: string, dest: string): Promise<void>;
 }
@@ -60,8 +65,14 @@ class Gzip {
 
 __exmaple__
 ```ts
-import { Gzip } from "https://deno.land/x/compress@v0.0.2/mod.ts";
-const gzip = new Gzip();
+import { gzip, gunzip, GzipSteam } from "https://deno.land/x/compress@v0.0.2/mod.ts";
+// gzip
+const bytes = new TextEncoder().encode("hello");
+const compressed = gzip(bytes);
+// gunzip
+const decompressed = gunzip(compressed);
+// GzipSteam, only supports compressing and decompressing a single file.
+const gzip = new GzipSteam();
 await gzip.compress("./deno.txt", "./deno.txt.gz");
 await gzip.uncompress("./deno.txt.gz", "./deno.txt");
 ```
