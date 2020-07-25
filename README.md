@@ -64,7 +64,7 @@ class GzipStream {
 }
 ```
 
-__exmaple__
+__exmaple__  
 compress and uncompress file, only supports compressing and decompressing a single file 
 
 no stream, loading all data into memory
