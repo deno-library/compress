@@ -65,20 +65,30 @@ class GzipStream {
 ```
 
 __exmaple__
-compress and uncompress file 
+compress and uncompress file, only supports compressing and decompressing a single file 
+
+no stream, loading all data into memory
+```ts
+// need --allow-net for use https://github.com/hazae41/denoflate
+import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.0.2/mod.ts";
+await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
+await gunzipFile("./deno.txt.gz", "./deno.txt");
+```
+
+stream, only gzip.compress is available
 ```ts
 import { GzipStream } from "https://deno.land/x/compress@v0.0.2/mod.ts";
-// GzipStream, only supports compressing and decompressing a single file.
 const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
 });
-await gzip.compress("./deno.txt", "./deno.txt.gz"); // stream
-// Having problems with streaming decompression
-// Now, loading all data into memory, so progress event will not emmit
+await gzip.compress("./big.exe", "./big.exe.gz");
+// Having problems with streaming decompression, don't use.
 await gzip.uncompress("./deno.txt.gz", "./deno.txt");
 ```
-gzip or gunzip string
+
+gzip or gunzip string, this is a pure JavaScript implementation.
+> If you want to run fast, you may need https://github.com/hazae41/denoflate
 ```ts
 import { gzip, gunzip } from "https://deno.land/x/compress@v0.0.2/mod.ts";
 // gzip
