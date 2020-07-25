@@ -46,7 +46,6 @@ assert(str === new TextDecoder().decode(decompressed));
 ```
 
 ### gzip
-GzipStream only supports compressing and decompressing a single file.
 
 __defination__
 ```ts
@@ -57,6 +56,8 @@ interface GzipOptions {
 }
 gzip(bytes: Uint8Array, options?:GzipOptions): Uint8Array;
 gunzip(bytes: Uint8Array): Uint8Array;
+gzipFile(src: string, dest: string): Promise<void>;
+gunzipFile(src: string, dest: string): Promise<void>;
 class GzipStream {
   compress(src: string, dest: string): Promise<void>;
   uncompress(src: string, dest: string): Promise<void>;
