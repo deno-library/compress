@@ -1,6 +1,8 @@
 import { EventEmitter } from "../deps.ts";
 import GzipWriter from "./writer_gzip.ts";
 import GunzipWriter from "./writer_gunzip.ts";
+// import { gunzip } from "./gzip.ts";
+import { gunzip } from "https://deno.land/x/denoflate/mod.ts";
 
 export class GzipStream extends EventEmitter {
   constructor() {
@@ -47,11 +49,24 @@ export class GzipStream extends EventEmitter {
     //   }
     // }
 
-    await writer.close();
+    writer.close();
     reader.close();
   }
 
   async uncompress(src: string, dest: string): Promise<void> {
+    const reader = await Deno.open(src, {
+      read: true,
+    });
+    // writer
+    const writer = await Deno.open(dest, {
+      write: true,
+      create: true,
+      truncate: true,
+    });
+    await Deno.writeAll(writer, gunzip(await Deno.readAll(reader)));
+  }
+
+  async _uncompress(src: string, dest: string): Promise<void> {
     // reader
     const size = (await Deno.stat(src)).size;
     const reader = await Deno.open(src, {
@@ -64,7 +79,6 @@ export class GzipStream extends EventEmitter {
     await writer.setup();
     writer.on("bytesWritten", (bytesWritten: number) => {
       const progress = (100 * bytesWritten / size).toFixed(2) + "%";
-      console.log(progress);
       this.emit("progress", progress);
     });
     // write
@@ -72,7 +86,7 @@ export class GzipStream extends EventEmitter {
       bufSize: 1024 * 1024,
     });
     // close
-    await writer.close();
+    writer.close();
     reader.close();
   }
 }

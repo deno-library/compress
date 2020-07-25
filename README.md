@@ -73,10 +73,12 @@ const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
 });
-await gzip.compress("./deno.txt", "./deno.txt.gz");
+await gzip.compress("./deno.txt", "./deno.txt.gz"); // stream
+// Having problems with streaming decompression
+// Now, loading all data into memory, so progress event will not emmit
 await gzip.uncompress("./deno.txt.gz", "./deno.txt");
 ```
-gzip or gunzip a small amount of data
+gzip or gunzip string
 ```ts
 import { gzip, gunzip } from "https://deno.land/x/compress@v0.0.2/mod.ts";
 // gzip
@@ -110,5 +112,5 @@ zip.uncompress(src, dest): Promise<void>;
 
 ## test
 ```ts
-deno test --allow-read --allow-write --allow-net
+deno test --allow-read --allow-write
 ```

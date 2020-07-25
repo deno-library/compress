@@ -1,6 +1,8 @@
 import { EventEmitter } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
-import { gunzip } from "./gzip.ts";
+import { inflate } from "../deflate/inflate.ts";
+import { checkHeader, checkTail } from "./gzip.ts";
+import { Crc32Stream } from "../utils/crc32.ts";
 
 type File = Deno.File;
 
@@ -10,11 +12,14 @@ interface Options {
 
 export default class Writer extends EventEmitter implements Deno.Writer {
   protected writer!: File;
-  protected bytesWritten = 0;
+  protected bytesWritten = 0; // readed size of reader
   private path: string;
   private chuncks: Uint8Array[] = [];
   private onceSize: number;
   private chuncksBytes = 0;
+  private isCheckHeader = false;
+  private writtenSize: number = 0; // written size of writer
+  private crc32Stream = new Crc32Stream();
 
   constructor(
     path: string,
@@ -35,30 +40,44 @@ export default class Writer extends EventEmitter implements Deno.Writer {
 
   async write(p: Uint8Array): Promise<number> {
     const readed = p.byteLength;
-    // this.chuncks.push(Uint8Array.from(p));
-    this.chuncks.push(new Uint8Array(p));
     this.chuncksBytes += readed;
     this.bytesWritten += readed;
-
+    const arr = Array.from(p);
+    if (!this.isCheckHeader) {
+      this.isCheckHeader = true;
+      checkHeader(arr);
+    }
+    if (readed < 16384) {
+      const { size, crc32 } = checkTail(arr);
+      this.chuncks.push(new Uint8Array(arr));
+      const buf = concatUint8Array(this.chuncks);
+      const decompressed = inflate(buf);
+      this.writtenSize += decompressed.byteLength;
+      await Deno.writeAll(this.writer, decompressed);
+      this.crc32Stream.append(decompressed);
+      if (crc32 !== parseInt(this.crc32Stream.crc32, 16)) {
+        throw "Checksum does not match";
+      }
+      if (size !== this.writtenSize) {
+        throw "Size of decompressed file not correct";
+      }
+      return readed;
+    }
+    this.chuncks.push(new Uint8Array(arr));
     if (this.chuncksBytes >= this.onceSize) {
       const buf = concatUint8Array(this.chuncks);
-      console.log(buf);
-      console.log(gunzip(buf));
-      await Deno.writeAll(this.writer, gunzip(buf));
-
+      const decompressed = inflate(buf);
+      this.writtenSize += decompressed.byteLength;
+      await Deno.writeAll(this.writer, decompressed);
+      this.crc32Stream.append(decompressed);
       this.chuncks.length = 0;
-      // this.chuncks.push(new Uint8Array([31, 139, 8, 0, 0, 0, 0, 0, 0]));
       this.chuncksBytes = 0;
       this.emit("bytesWritten", this.bytesWritten);
     }
     return readed;
   }
 
-  async close(): Promise<void> {
-    if (this.chuncks.length > 0) {
-      const buf = concatUint8Array(this.chuncks);
-      await Deno.writeAll(this.writer, gunzip(buf));
-    }
+  close(): void {
     this.emit("bytesWritten", this.bytesWritten);
     Deno.close(this.writer.rid);
   }

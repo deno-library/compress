@@ -219,6 +219,32 @@ export function gzip(
 export function gunzip(bytes: Uint8Array): Uint8Array {
   const arr = Array.from(bytes);
 
+  checkHeader(arr);
+
+  // give deflate everything but the last 8 bytes
+  // the last 8 bytes are for the CRC32 checksum and filesize
+  let res: Uint8Array = inflate(new Uint8Array(arr.splice(0, arr.length - 8)));
+
+  // if (flags & possibleFlags["FTEXT"]) {
+  //   res = Array.prototype.map.call(res, function (byte) {
+  //     return String.fromCharCode(byte);
+  //   }).join("");
+  // }
+
+  let crc: number = readLong(arr) >>> 0;
+  if (crc !== parseInt(crc32(res), 16)) {
+    throw "Checksum does not match";
+  }
+
+  let size: number = readLong(arr);
+  if (size !== res.length) {
+    throw "Size of decompressed file not correct";
+  }
+
+  return res;
+}
+
+export function checkHeader(arr: number[]) {
   // check the first two bytes for the magic numbers
   if (readByte(arr) !== ID1 || readByte(arr) !== ID2) {
     throw "Not a GZIP file";
@@ -252,26 +278,16 @@ export function gunzip(bytes: Uint8Array): Uint8Array {
   if (flags & possibleFlags["FHCRC"]) {
     readShort(arr);
   }
+}
 
-  // give deflate everything but the last 8 bytes
-  // the last 8 bytes are for the CRC32 checksum and filesize
-  let res: Uint8Array = inflate(new Uint8Array(arr.splice(0, arr.length - 8)));
+export function checkTail(arr: number[]) {
+  const tail = arr.splice(arr.length - 8);
 
-  // if (flags & possibleFlags["FTEXT"]) {
-  //   res = Array.prototype.map.call(res, function (byte) {
-  //     return String.fromCharCode(byte);
-  //   }).join("");
-  // }
+  let crc32: number = readLong(tail) >>> 0;
+  let size: number = readLong(tail);
 
-  let crc: number = readLong(arr) >>> 0;
-  if (crc !== parseInt(crc32(res), 16)) {
-    throw "Checksum does not match";
-  }
-
-  let size: number = readLong(arr);
-  if (size !== res.length) {
-    throw "Size of decompressed file not correct";
-  }
-
-  return res;
+  return {
+    crc32,
+    size,
+  };
 }
