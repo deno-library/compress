@@ -1,7 +1,11 @@
+/** 
+ * fast, 
+ * not export in mod.ts and not in deps.ts for it requires permission --allow-net  
+ * so you must import from this file
+ **/
+import { gzip, gunzip } from "https://deno.land/x/denoflate/mod.ts";
 /** slow */
 // import { gzip, gunzip } from "./gzip.ts";
-/** fast */
-import { gzip, gunzip } from "https://deno.land/x/denoflate/mod.ts";
 
 export async function gzipFile(src: string, dest: string): Promise<void> {
   const reader = await Deno.open(src, {

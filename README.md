@@ -70,7 +70,9 @@ compress and uncompress file, only supports compressing and decompressing a sing
 no stream, loading all data into memory
 ```ts
 // need --allow-net for use https://github.com/hazae41/denoflate
-import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.0.2/mod.ts";
+// not export in mod.ts and not in deps.ts for it requires permission --allow-net  
+// so you must import from this file
+import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.0.2/gzip/gzip_file.ts";
 await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
