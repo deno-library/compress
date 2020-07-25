@@ -35,7 +35,8 @@ await tar.compress("./test.txt","./test.tar");
 await tar.uncompress("./test.tar","./test");
 ```
 
-### deflate
+### deflate  
+This is a pure TypeScript implementation of deflate.
 ```ts
 import { deflate, inflate } from "https://deno.land/x/compress@v0.1.0/mod.ts";
 const str = "hello world!";
@@ -90,7 +91,8 @@ await gzip.compress("./big.exe", "./big.exe.gz");
 await gzip.uncompress("./deno.txt.gz", "./deno.txt");
 ```
 
-gzip or gunzip string, this is a pure JavaScript implementation.
+gzip or gunzip
+This is a pure TypeScript implementation.
 > If you want to run fast, you may need https://github.com/hazae41/denoflate
 ```ts
 import { gzip, gunzip } from "https://deno.land/x/compress@v0.1.0/mod.ts";
