@@ -91,7 +91,7 @@ await gzip.compress("./big.exe", "./big.exe.gz");
 await gzip.uncompress("./deno.txt.gz", "./deno.txt");
 ```
 
-gzip or gunzip
+gzip or gunzip  
 This is a pure TypeScript implementation.
 > If you want to run fast, you may need https://github.com/hazae41/denoflate
 ```ts
