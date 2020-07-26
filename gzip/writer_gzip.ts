@@ -1,7 +1,6 @@
-import { EventEmitter } from "../deps.ts";
+import { EventEmitter, Crc32Stream } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { getHeader, putLong } from "./gzip.ts";
-import { Crc32Stream } from "../utils/crc32.ts";
 import { deflate } from "../deflate/mod.ts";
 // import { deflate } from "https://deno.land/x/denoflate/mod.ts";
 
@@ -41,7 +40,6 @@ export default class Writer extends EventEmitter implements Deno.Writer {
     });
     await Deno.write(this.writer.rid, headers);
   }
-
 
   async write(p: Uint8Array): Promise<number> {
     const readed = p.byteLength;

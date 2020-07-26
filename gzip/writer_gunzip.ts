@@ -1,8 +1,7 @@
-import { EventEmitter } from "../deps.ts";
+import { EventEmitter, Crc32Stream } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { inflate } from "../deflate/inflate.ts";
 import { checkHeader, checkTail } from "./gzip.ts";
-import { Crc32Stream } from "../utils/crc32.ts";
 
 type File = Deno.File;
 

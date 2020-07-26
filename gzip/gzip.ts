@@ -1,4 +1,4 @@
-import { crc32 } from "../utils/crc32.ts";
+import { crc32 } from "../deps.ts";
 import { deflate, inflate } from "../deflate/mod.ts";
 
 // magic numbers marking this file as GZIP
