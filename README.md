@@ -69,17 +69,8 @@ class GzipStream {
 __exmaple__  
 compress and uncompress file, only supports compressing and decompressing a single file 
 
-no stream, loading all data into memory
-```ts
-// need --allow-net for use https://github.com/hazae41/denoflate
-// not export in mod.ts and not in deps.ts for it requires permission --allow-net  
-// so you must import from this file
-import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.1.2/gzip/gzip_file.ts";
-await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
-await gunzipFile("./deno.txt.gz", "./deno.txt");
-```
-
-stream mode, used to read and write large files
+**stream mode**  
+used to read and write large files
 ```ts
 import { GzipStream } from "https://deno.land/x/compress@v0.1.2/mod.ts";
 const gzip = new GzipStream();
@@ -88,11 +79,18 @@ gzip.on("progress", (progress: string) => {
 });
 await gzip.compress("./big.mkv", "./big.mkv.gz");
 await gzip.uncompress("./big.mkv.gz", "./big.mkv");
+```  
+
+**no stream**  
+loading all data into memory, so can't get `progress` event
+```ts
+import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.1.2/mod.ts";
+await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
+await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
 
-gzip or gunzip  
-This is a pure TypeScript implementation.
-> If you want to run fast, you may need https://github.com/hazae41/denoflate
+**gzip or gunzip**  
+> This is a pure TypeScript implementation. Almost as fast as Rust implementation.
 ```ts
 import { gzip, gunzip } from "https://deno.land/x/compress@v0.1.2/mod.ts";
 // gzip
