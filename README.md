@@ -13,7 +13,7 @@ If you read and write files, need the following permissions
 
 ### tar 
 
-__defination__
+#### defination
 ```ts
 import { tar } from "https://deno.land/x/compress@v0.2.0/mod.ts";
 export interface compressInterface {
@@ -23,7 +23,7 @@ tar.compress(src, dest, options?: compressInterface): Promise<void>;
 tar.uncompress(src, dest): Promise<void>;
 ```
 
-__exmaple__
+#### exmaple
 ```ts
 import { tar } from "https://deno.land/x/compress@v0.2.0/mod.ts";
 // compress folder
@@ -57,7 +57,7 @@ const decompressed = inflateRaw(compressed);
 
 ### gzip
 
-__defination__
+#### defination
 ```ts
 interface GzipOptions {
   level: number;
@@ -75,10 +75,10 @@ class GzipStream {
 }
 ```
 
-__exmaple__  
+#### exmaple 
 compress and uncompress file, only supports compressing and decompressing a single file 
 
-**stream mode**  
+__stream mode__  
 used to read and write large files
 ```ts
 import { GzipStream } from "https://deno.land/x/compress@v0.2.0/mod.ts";
@@ -90,7 +90,7 @@ await gzip.compress("./big.mkv", "./big.mkv.gz");
 await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 ```  
 
-**no stream**  
+__no stream__  
 loading all data into memory, so can't get `progress` event
 ```ts
 import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.2.0/mod.ts";
@@ -110,7 +110,7 @@ const decompressed = gunzip(compressed);
 ```
 
 ### tgz
-__defination__
+#### defination
 ```ts
 import { tgz } from "https://deno.land/x/compress@v0.2.0/mod.ts";
 interface compressInterface {
@@ -121,7 +121,7 @@ tgz.uncompress(src, dest): Promise<void>;
 ```
 
 ### zip
-__defination__
+#### defination
 ```ts
 import { zip } from "https://deno.land/x/compress@v0.2.0/mod.ts";
 interface compressInterface {
