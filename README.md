@@ -79,7 +79,7 @@ await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
 
-stream, only gzip.compress is available
+~~stream mode, now is unavailable~~
 ```ts
 import { GzipStream } from "https://deno.land/x/compress@v0.1.2/mod.ts";
 const gzip = new GzipStream();
@@ -87,7 +87,6 @@ gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
 });
 await gzip.compress("./big.exe", "./big.exe.gz");
-// Having problems with streaming decompression, don't use.
 await gzip.uncompress("./deno.txt.gz", "./deno.txt");
 ```
 

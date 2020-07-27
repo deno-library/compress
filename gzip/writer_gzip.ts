@@ -50,12 +50,12 @@ export default class Writer extends EventEmitter implements Deno.Writer {
     this.crc32Stream.append(copy);
     if (readed < 16384) {
       const buf = concatUint8Array(this.chuncks);
-      await Deno.writeAll(this.writer, deflate(buf));
+      await Deno.writeAll(this.writer, deflate(buf, undefined));
       const tail = this.getTail();
       await Deno.write(this.writer.rid, tail);
     } else if (this.chuncksBytes >= this.onceSize) {
       const buf = concatUint8Array(this.chuncks);
-      await Deno.writeAll(this.writer, deflate(buf));
+      await Deno.writeAll(this.writer, deflate(buf, undefined));
       this.chuncks.length = 0;
       this.chuncksBytes = 0;
       this.emit("bytesWritten", this.bytesWritten);
