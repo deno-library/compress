@@ -38,12 +38,21 @@ await tar.uncompress("./test.tar","./test");
 ### deflate  
 This is a pure TypeScript implementation of deflate.
 ```ts
-import { deflate, inflate } from "https://deno.land/x/compress@v0.1.2/mod.ts";
+import { 
+  deflate, 
+  inflate, 
+  /** Compress data using deflate, and do not append a zlib header. */
+  deflateRaw, 
+  inflateRaw
+ } from "https://deno.land/x/compress@v0.1.2/mod.ts";
 const str = "hello world!";
 const bytes = new TextEncoder().encode(str);
+// with zlib header
 const compressed = deflate(bytes);
 const decompressed = inflate(compressed);
-assert(str === new TextDecoder().decode(decompressed));
+// no zlib header
+const compressed = deflateRaw(bytes);
+const decompressed = inflateRaw(compressed);
 ```
 
 ### gzip
