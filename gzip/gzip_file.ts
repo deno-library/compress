@@ -1,9 +1,5 @@
-/** 
- * fast, 
- * not export in mod.ts and not in deps.ts for it requires permission --allow-net  
- * so you must import from this file
- **/
-import { gzip, gunzip } from "https://deno.land/x/denoflate/mod.ts";
+/** very fast */
+import { gzip , gunzip} from "../zlib/mod.ts";
 /** slow */
 // import { gzip, gunzip } from "./gzip.ts";
 

@@ -177,7 +177,7 @@ export class Inflate {
   }
 }
 
-export function inflate(input: Uint8Array, options: InflateOptions) {
+export function inflate(input: Uint8Array, options: InflateOptions = {}) {
   const inflator = new Inflate(options);
   const result = inflator.push(input, true);
   // That will never happens, if you don't cheat with options :)
@@ -185,7 +185,9 @@ export function inflate(input: Uint8Array, options: InflateOptions) {
   return result;
 }
 
-export function inflateRaw(input: Uint8Array, options: InflateOptions) {
+export function inflateRaw(input: Uint8Array, options: InflateOptions = {}) {
   options.raw = true;
   return inflate(input, options);
 }
+
+export const gunzip = inflate;
