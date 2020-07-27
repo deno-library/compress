@@ -1,5 +1,8 @@
 import { crc32 } from "../deps.ts";
-import { deflate, inflate } from "../deflate/mod.ts";
+/** very fast */
+import { deflateRaw, inflateRaw } from "../zlib/mod.ts";
+/** slow */
+// import { deflateRaw, inflateRaw } from "../deflate/mod.ts";
 
 // magic numbers marking this file as GZIP
 const ID1 = 0x1F;
@@ -206,9 +209,13 @@ export function gzip(
     putByte(0, out);
   }
 
-  deflate(bytes, level).forEach(function (byte) {
+  deflateRaw(bytes).forEach(function (byte) {
     putByte(byte, out);
   });
+  // import { deflateRaw, inflateRaw } from "../deflate/mod.ts";
+  // deflateRaw(bytes, level).forEach(function (byte) {
+  //   putByte(byte, out);
+  // });
 
   putLong(parseInt(crc32(bytes), 16), out);
   putLong(bytes.length, out);
@@ -223,7 +230,9 @@ export function gunzip(bytes: Uint8Array): Uint8Array {
 
   // give deflate everything but the last 8 bytes
   // the last 8 bytes are for the CRC32 checksum and filesize
-  let res: Uint8Array = inflate(new Uint8Array(arr.splice(0, arr.length - 8)));
+  let res: Uint8Array = inflateRaw(
+    new Uint8Array(arr.splice(0, arr.length - 8)),
+  );
 
   // if (flags & possibleFlags["FTEXT"]) {
   //   res = Array.prototype.map.call(res, function (byte) {

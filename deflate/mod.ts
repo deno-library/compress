@@ -1,2 +1,2 @@
-export { deflate } from "./deflate.ts";
-export { inflate } from "./inflate.ts";
+export { deflateRaw } from "./deflate_raw.ts";
+export { inflateRaw } from "./inflate_raw.ts";

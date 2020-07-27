@@ -1717,7 +1717,7 @@ function qoutbuf() {
   }
 }
 
-export function deflate(
+export function deflateRaw(
   bytes: Uint8Array,
   level: number = DEFAULT_LEVEL,
 ): Uint8Array {

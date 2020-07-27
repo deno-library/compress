@@ -932,7 +932,7 @@ function inflate_internal(buff: number[], off: number, size: number) {
   return n;
 }
 
-export function inflate(arr: Uint8Array): Uint8Array {
+export function inflateRaw(arr: Uint8Array): Uint8Array {
   let i;
   const buff: number[] = [];
 
