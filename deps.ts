@@ -6,4 +6,4 @@ export { EventEmitter } from "https://deno.land/std/node/events.ts";
 export {
   crc32,
   Crc32Stream,
-} from "https://raw.githubusercontent.com/deno-library/crc32/master/mod.ts";
+} from "https://deno.land/x/crc32/mod.ts";
