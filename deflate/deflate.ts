@@ -1718,10 +1718,10 @@ function qoutbuf() {
 }
 
 export function deflate(
-  arr: Uint8Array,
+  bytes: Uint8Array,
   level: number = DEFAULT_LEVEL,
 ): Uint8Array {
-  deflate_data = arr;
+  deflate_data = bytes;
   deflate_pos = 0;
   deflate_start(level);
 
