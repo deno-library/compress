@@ -79,15 +79,15 @@ await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
 
-~~stream mode, now is unavailable~~
+stream mode, used to read and write large files
 ```ts
 import { GzipStream } from "https://deno.land/x/compress@v0.1.2/mod.ts";
 const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
 });
-await gzip.compress("./big.exe", "./big.exe.gz");
-await gzip.uncompress("./deno.txt.gz", "./deno.txt");
+await gzip.compress("./big.mkv", "./big.mkv.gz");
+await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 ```
 
 gzip or gunzip  

@@ -1,7 +1,7 @@
 import { EventEmitter, Crc32Stream } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
-import { inflate } from "../deflate/inflate.ts";
 import { checkHeader, checkTail } from "./gzip.ts";
+import { Inflate } from "../zlib/mod.ts";
 
 type File = Deno.File;
 
@@ -19,6 +19,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
   private isCheckHeader = false;
   private writtenSize: number = 0; // written size of writer
   private crc32Stream = new Crc32Stream();
+  private inflate: Inflate = new Inflate({ raw: true });
 
   constructor(
     path: string,
@@ -50,7 +51,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
       const { size, crc32 } = checkTail(arr);
       this.chuncks.push(new Uint8Array(arr));
       const buf = concatUint8Array(this.chuncks);
-      const decompressed = inflate(buf);
+      const decompressed = this.inflate.push(buf, true);
       this.writtenSize += decompressed.byteLength;
       await Deno.writeAll(this.writer, decompressed);
       this.crc32Stream.append(decompressed);
@@ -65,7 +66,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
     this.chuncks.push(new Uint8Array(arr));
     if (this.chuncksBytes >= this.onceSize) {
       const buf = concatUint8Array(this.chuncks);
-      const decompressed = inflate(buf);
+      const decompressed = this.inflate.push(buf, false);
       this.writtenSize += decompressed.byteLength;
       await Deno.writeAll(this.writer, decompressed);
       this.crc32Stream.append(decompressed);

@@ -1,8 +1,9 @@
 import { EventEmitter, Crc32Stream } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { getHeader, putLong } from "./gzip.ts";
-import { deflate } from "../deflate/mod.ts";
+// import { deflate } from "../deflate/mod.ts";
 // import { deflate } from "https://deno.land/x/denoflate/mod.ts";
+import { Deflate } from "../zlib/mod.ts";
 
 type File = Deno.File;
 
@@ -18,6 +19,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
   private onceSize: number;
   private chuncksBytes = 0;
   private crc32Stream = new Crc32Stream();
+  private deflate: Deflate = new Deflate({ raw: true });
 
   constructor(
     path: string,
@@ -50,12 +52,14 @@ export default class Writer extends EventEmitter implements Deno.Writer {
     this.crc32Stream.append(copy);
     if (readed < 16384) {
       const buf = concatUint8Array(this.chuncks);
-      await Deno.writeAll(this.writer, deflate(buf, undefined));
+      const compressed = this.deflate.push(buf, true);
+      await Deno.writeAll(this.writer, compressed);
       const tail = this.getTail();
       await Deno.write(this.writer.rid, tail);
     } else if (this.chuncksBytes >= this.onceSize) {
       const buf = concatUint8Array(this.chuncks);
-      await Deno.writeAll(this.writer, deflate(buf, undefined));
+      const compressed = this.deflate.push(buf, false);
+      await Deno.writeAll(this.writer, compressed);
       this.chuncks.length = 0;
       this.chuncksBytes = 0;
       this.emit("bytesWritten", this.bytesWritten);
