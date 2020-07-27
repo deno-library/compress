@@ -105,16 +105,16 @@ let free_queue: DeflateBuffer | null = null,
   deflate_pos: number;
 
 if (LIT_BUFSIZE > INBUFSIZ) {
-  console.error("error: INBUFSIZ is too small");
+  throw new Error("error: INBUFSIZ is too small");
 }
 if ((WSIZE << 1) > (1 << BITS)) {
-  console.error("error: WSIZE is too large");
+  throw new Error("error: WSIZE is too large");
 }
 if (HASH_BITS > BITS - 1) {
-  console.error("error: HASH_BITS is too large");
+  throw new Error("error: HASH_BITS is too large");
 }
 if (HASH_BITS < 8 || MAX_MATCH !== 258) {
-  console.error("error: Code too clever");
+  throw new Error("error: Code too clever");
 }
 
 /* objects (deflate) */
@@ -133,11 +133,12 @@ class DeflateTreeDesc {
   max_code = 0; // largest code with non zero frequency
 }
 
-/* Values for max_lazy_match, good_match and max_chain_length, depending on
-	 * the desired pack level (0..9). The values given below have been tuned to
-	 * exclude worst case performance for pathological files. Better values may be
-	 * found for specific files.
-	 */
+/**
+ * Values for max_lazy_match, good_match and max_chain_length, depending on
+ * the desired pack level (0..9). The values given below have been tuned to
+ * exclude worst case performance for pathological files. Better values may be
+ * found for specific files.
+ */
 class DeflateConfiguration {
   good_length: number;
   max_lazy: number;
@@ -259,10 +260,7 @@ const configuration_table = [
 ];
 
 /* routines (deflate) */
-
 function deflate_start(level: number) {
-  let i;
-
   if (!level) {
     level = DEFAULT_LEVEL;
   } else if (level < 1) {
@@ -286,23 +284,23 @@ function deflate_start(level: number) {
   prev = []; // new Array(1 << BITS); // prev.length never called
 
   dyn_ltree = [];
-  for (i = 0; i < HEAP_SIZE; i++) {
+  for (let i = 0; i < HEAP_SIZE; i++) {
     dyn_ltree[i] = new DeflateCT();
   }
   dyn_dtree = [];
-  for (i = 0; i < 2 * D_CODES + 1; i++) {
+  for (let i = 0; i < 2 * D_CODES + 1; i++) {
     dyn_dtree[i] = new DeflateCT();
   }
   static_ltree = [];
-  for (i = 0; i < L_CODES + 2; i++) {
+  for (let i = 0; i < L_CODES + 2; i++) {
     static_ltree[i] = new DeflateCT();
   }
   static_dtree = [];
-  for (i = 0; i < D_CODES; i++) {
+  for (let i = 0; i < D_CODES; i++) {
     static_dtree[i] = new DeflateCT();
   }
   bl_tree = [];
-  for (i = 0; i < 2 * BL_CODES + 1; i++) {
+  for (let i = 0; i < 2 * BL_CODES + 1; i++) {
     bl_tree[i] = new DeflateCT();
   }
   l_desc = new DeflateTreeDesc();
@@ -346,11 +344,12 @@ function head2(i: number, val: number) {
   return (prev[WSIZE + i] = val);
 }
 
-/* put_byte is used for the compressed output, put_ubyte for the
-	 * uncompressed output. However unlzw() uses window for its
-	 * suffix table instead of its output buffer, so it does not use put_ubyte
-	 * (to be cleaned up).
-	 */
+/**
+ * put_byte is used for the compressed output, put_ubyte for the
+ * uncompressed output. However unlzw() uses window for its
+ * suffix table instead of its output buffer, so it does not use put_ubyte
+ * (to be cleaned up).
+ */
 function put_byte(c: number) {
   outbuf![outoff + outcnt++] = c;
   if (outoff + outcnt === OUTBUFSIZ) {
@@ -370,14 +369,14 @@ function put_short(w: number) {
   }
 }
 
-/* ==========================================================================
-	 * Insert string s in the dictionary and set match_head to the previous head
-	 * of the hash chain (the most recent string with same hash key). Return
-	 * the previous length of the hash chain.
-	 * IN  assertion: all calls to to INSERT_STRING are made with consecutive
-	 *    input characters and the first MIN_MATCH bytes of s are valid
-	 *    (except for the last MIN_MATCH-1 bytes of the input file).
-	 */
+/**
+ * Insert string s in the dictionary and set match_head to the previous head
+ * of the hash chain (the most recent string with same hash key). Return
+ * the previous length of the hash chain.
+ * IN  assertion: all calls to to INSERT_STRING are made with consecutive
+ *    input characters and the first MIN_MATCH bytes of s are valid
+ *    (except for the last MIN_MATCH-1 bytes of the input file).
+ **/
 function INSERT_STRING() {
   ins_h = ((ins_h << H_SHIFT) ^ (window[strstart + MIN_MATCH - 1] & 0xff)) &
     HASH_MASK;
@@ -391,26 +390,25 @@ function SEND_CODE(c: number, tree: DeflateCT[]) {
   send_bits(tree[c].fc, tree[c].dl);
 }
 
-/* Mapping from a distance to a distance code. dist is the distance - 1 and
-	 * must not have side effects. dist_code[256] and dist_code[257] are never
-	 * used.
-	 */
+/**
+ * Mapping from a distance to a distance code. dist is the distance - 1 and
+ * must not have side effects. dist_code[256] and dist_code[257] are never
+ * used.
+ **/
 function D_CODE(dist: number) {
   return (dist < 256 ? dist_code[dist] : dist_code[256 + (dist >> 7)]) & 0xff;
 }
 
-/* ==========================================================================
-	 * Compares to subtrees, using the tree depth as tie breaker when
-	 * the subtrees have equal frequency. This minimizes the worst case length.
-	 */
+/**
+ * Compares to subtrees, using the tree depth as tie breaker when
+ * the subtrees have equal frequency. This minimizes the worst case length.
+ **/
 function SMALLER(tree: DeflateCT[], n: number, m: number) {
   return tree[n].fc < tree[m].fc ||
     (tree[n].fc === tree[m].fc && depth[n] <= depth[m]);
 }
 
-/* ==========================================================================
-	 * read string data
-	 */
+/** read string data */
 function read_buff(buff: number[], offset: number, n: number) {
   let i;
   for (i = 0; i < n && deflate_pos < deflate_data.length; i++) {
@@ -419,9 +417,7 @@ function read_buff(buff: number[], offset: number, n: number) {
   return i;
 }
 
-/* ==========================================================================
-	 * Initialize the "longest match" routines for a new file
-	 */
+/** Initialize the "longest match" routines for a new file */
 function lm_init() {
   let j;
 
@@ -465,14 +461,14 @@ function lm_init() {
   }
 }
 
-/* ==========================================================================
-	 * Set match_start to the longest match starting at the given string and
-	 * return its length. Matches shorter or equal to prev_length are discarded,
-	 * in which case the result is equal to prev_length and match_start is
-	 * garbage.
-	 * IN assertions: cur_match is the head of the hash chain for the current
-	 *   string (strstart) and its distance is <= MAX_DIST, and prev_length >= 1
-	 */
+/**
+ * Set match_start to the longest match starting at the given string and
+ * return its length. Matches shorter or equal to prev_length are discarded,
+ * in which case the result is equal to prev_length and match_start is
+ * garbage.
+ * IN assertions: cur_match is the head of the hash chain for the current
+ *   string (strstart) and its distance is <= MAX_DIST, and prev_length >= 1
+ **/
 function longest_match(cur_match: number) {
   let chain_length = max_chain_length; // max hash chain length
   let scanp = strstart; // current string
@@ -564,14 +560,14 @@ function longest_match(cur_match: number) {
   return best_len;
 }
 
-/* ==========================================================================
-	 * Fill the window when the lookahead becomes insufficient.
-	 * Updates strstart and lookahead, and sets eofile if end of input file.
-	 * IN assertion: lookahead < MIN_LOOKAHEAD && strstart + lookahead > 0
-	 * OUT assertions: at least one byte has been read, or eofile is set;
-	 *    file reads are performed for at least two bytes (required for the
-	 *    translate_eol option).
-	 */
+/**
+ * Fill the window when the lookahead becomes insufficient.
+ * Updates strstart and lookahead, and sets eofile if end of input file.
+ * IN assertion: lookahead < MIN_LOOKAHEAD && strstart + lookahead > 0
+ * OUT assertions: at least one byte has been read, or eofile is set;
+ *    file reads are performed for at least two bytes (required for the
+ *    translate_eol option).
+ **/
 function fill_window() {
   let n, m;
 
@@ -621,12 +617,12 @@ function fill_window() {
   }
 }
 
-/* ==========================================================================
-	 * Processes a new input file and return its compressed length. This
-	 * function does not perform lazy evaluationof matches and inserts
-	 * new strings in the dictionary only for unmatched strings or for short
-	 * matches. It is used only for the fast compression options.
-	 */
+/**
+ * Processes a new input file and return its compressed length. This
+ * function does not perform lazy evaluationof matches and inserts
+ * new strings in the dictionary only for unmatched strings or for short
+ * matches. It is used only for the fast compression options.
+ **/
 function deflate_fast() {
   while (lookahead !== 0 && qhead === null) {
     let flush; // set if current block must be flushed
@@ -810,11 +806,11 @@ function init_deflate() {
   complete = false;
 }
 
-/* ==========================================================================
-	 * Same as above, but achieves better compression. We use a lazy
-	 * evaluation for matches: a match is finally adopted only if there is
-	 * no better match at the next window position.
-	 */
+/**
+ * Same as above, but achieves better compression. We use a lazy
+ * evaluation for matches: a match is finally adopted only if there is
+ * no better match at the next window position.
+ **/
 function deflate_internal(buff: number[], off: number, buff_size: number) {
   let n;
 
@@ -901,11 +897,11 @@ function qcopy(buff: number[], off: number, buff_size: number) {
   return n;
 }
 
-/* ==========================================================================
-	 * Allocate the match buffer, initialize the letious tables and save the
-	 * location of the internal file attribute (ascii/binary) and method
-	 * (DEFLATE/STORE).
-	 */
+/**
+ * Allocate the match buffer, initialize the letious tables and save the
+ * location of the internal file attribute (ascii/binary) and method
+ * (DEFLATE/STORE).
+ **/
 function ct_init() {
   let n; // iterates over tree elements
   let bits; // bit counter
@@ -1008,9 +1004,7 @@ function ct_init() {
   init_block();
 }
 
-/* ==========================================================================
-	 * Initialize a new block.
-	 */
+/** Initialize a new block. */
 function init_block() {
   let n; // iterates over tree elements
 
@@ -1032,15 +1026,15 @@ function init_block() {
   flag_bit = 1;
 }
 
-/* ==========================================================================
-	 * Restore the heap property by moving down the tree starting at node k,
-	 * exchanging a node with the smallest of its two sons if necessary, stopping
-	 * when the heap property is re-established (each father smaller than its
-	 * two sons).
-	 *
-	 * @param tree- tree to restore
-	 * @param k- node to move down
-	 */
+/**
+ * Restore the heap property by moving down the tree starting at node k,
+ * exchanging a node with the smallest of its two sons if necessary, stopping
+ * when the heap property is re-established (each father smaller than its
+ * two sons).
+ *
+ * @param tree- tree to restore
+ * @param k- node to move down
+ **/
 function pqdownheap(tree: DeflateCT[], k: number) {
   let v = heap[k],
     j = k << 1; // left son of k
@@ -1066,16 +1060,16 @@ function pqdownheap(tree: DeflateCT[], k: number) {
   heap[k] = v;
 }
 
-/* ==========================================================================
-	 * Compute the optimal bit lengths for a tree and update the total bit length
-	 * for the current block.
-	 * IN assertion: the fields freq and dad are set, heap[heap_max] and
-	 *    above are the tree nodes sorted by increasing frequency.
-	 * OUT assertions: the field len is set to the optimal bit length, the
-	 *     array bl_count contains the frequencies for each bit length.
-	 *     The length opt_len is updated; static_len is also updated if stree is
-	 *     not null.
-	 */
+/**
+ * Compute the optimal bit lengths for a tree and update the total bit length
+ * for the current block.
+ * IN assertion: the fields freq and dad are set, heap[heap_max] and
+ *    above are the tree nodes sorted by increasing frequency.
+ * OUT assertions: the field len is set to the optimal bit length, the
+ *     array bl_count contains the frequencies for each bit length.
+ *     The length opt_len is updated; static_len is also updated if stree is
+ *     not null.
+ **/
 function gen_bitlen(desc: DeflateTreeDesc) { // the tree descriptor
   let tree = desc.dyn_tree;
   let extra = desc.extra_bits;
@@ -1163,16 +1157,16 @@ function gen_bitlen(desc: DeflateTreeDesc) { // the tree descriptor
   }
 }
 
-/* ==========================================================================
-	   * Generate the codes for a given tree and bit counts (which need not be
-	   * optimal).
-	   * IN assertion: the array bl_count contains the bit length statistics for
-	   * the given tree and the field len is set for all tree elements.
-	   * OUT assertion: the field code is set for all tree elements of non
-	   *     zero code length.
-	   * @param tree- the tree to decorate
-	   * @param max_code- largest code with non-zero frequency
-	   */
+/**
+ * Generate the codes for a given tree and bit counts (which need not be
+ * optimal).
+ * IN assertion: the array bl_count contains the bit length statistics for
+ * the given tree and the field len is set for all tree elements.
+ * OUT assertion: the field code is set for all tree elements of non
+ *     zero code length.
+ * @param tree- the tree to decorate
+ * @param max_code- largest code with non-zero frequency
+ **/
 function gen_codes(tree: DeflateCT[], max_code: number) {
   let next_code = []; // new Array(MAX_BITS + 1); // next code value for each bit length
   let code = 0; // running code value
@@ -1203,14 +1197,14 @@ function gen_codes(tree: DeflateCT[], max_code: number) {
   }
 }
 
-/* ==========================================================================
-	 * Construct one Huffman tree and assigns the code bit strings and lengths.
-	 * Update the total bit length for the current block.
-	 * IN assertion: the field freq is set for all tree elements.
-	 * OUT assertions: the fields len and code are set to the optimal bit length
-	 *     and corresponding code. The length opt_len is updated; static_len is
-	 *     also updated if stree is not null. The field max_code is set.
-	 */
+/**
+ * Construct one Huffman tree and assigns the code bit strings and lengths.
+ * Update the total bit length for the current block.
+ * IN assertion: the field freq is set for all tree elements.
+ * OUT assertions: the fields len and code are set to the optimal bit length
+ *     and corresponding code. The length opt_len is updated; static_len is
+ *     also updated if stree is not null. The field max_code is set.
+ **/
 function build_tree(desc: DeflateTreeDesc) { // the tree descriptor
   let tree = desc.dyn_tree;
   let stree = desc.static_tree;
@@ -1294,15 +1288,15 @@ function build_tree(desc: DeflateTreeDesc) { // the tree descriptor
   gen_codes(tree, max_code);
 }
 
-/* ==========================================================================
-	 * Scan a literal or distance tree to determine the frequencies of the codes
-	 * in the bit length tree. Updates opt_len to take into account the repeat
-	 * counts. (The contribution of the bit length codes will be added later
-	 * during the construction of bl_tree.)
-	 *
-	 * @param tree- the tree to be scanned
-	 * @param max_code- and its largest code of non zero frequency
-	 */
+/**
+ * Scan a literal or distance tree to determine the frequencies of the codes
+ * in the bit length tree. Updates opt_len to take into account the repeat
+ * counts. (The contribution of the bit length codes will be added later
+ * during the construction of bl_tree.)
+ *
+ * @param tree- the tree to be scanned
+ * @param max_code- and its largest code of non zero frequency
+ **/
 function scan_tree(tree: DeflateCT[], max_code: number) {
   let n, // iterates over all tree elements
     prevlen = -1, // last emitted length
@@ -1350,13 +1344,13 @@ function scan_tree(tree: DeflateCT[], max_code: number) {
   }
 }
 
-/* ==========================================================================
-	 * Send a literal or distance tree in compressed form, using the codes in
-	 * bl_tree.
-	 *
-	 * @param tree- the tree to be scanned
-	 * @param max_code- and its largest code of non zero frequency
-	 */
+/**
+ * Send a literal or distance tree in compressed form, using the codes in
+ * bl_tree.
+ *
+ * @param tree- the tree to be scanned
+ * @param max_code- and its largest code of non zero frequency
+ **/
 function send_tree(tree: DeflateCT[], max_code: number) {
   let n; // iterates over all tree elements
   let prevlen = -1; // last emitted length
@@ -1411,10 +1405,10 @@ function send_tree(tree: DeflateCT[], max_code: number) {
   }
 }
 
-/* ==========================================================================
-	 * Construct the Huffman tree for the bit lengths and return the index in
-	 * bl_order of the last bit length code to send.
-	 */
+/**
+ * Construct the Huffman tree for the bit lengths and return the index in
+ * bl_order of the last bit length code to send.
+ **/
 function build_bl_tree() {
   let max_blindex; // index of last bit length code of non zero freq
 
@@ -1443,11 +1437,11 @@ function build_bl_tree() {
   return max_blindex;
 }
 
-/* ==========================================================================
-	 * Send the header for a block using dynamic Huffman trees: the counts, the
-	 * lengths of the bit length codes, the literal tree and the distance tree.
-	 * IN assertion: lcodes >= 257, dcodes >= 1, blcodes >= 4.
-	 */
+/**
+ * Send the header for a block using dynamic Huffman trees: the counts, the
+ * lengths of the bit length codes, the literal tree and the distance tree.
+ * IN assertion: lcodes >= 257, dcodes >= 1, blcodes >= 4.
+ **/
 function send_all_trees(lcodes: number, dcodes: number, blcodes: number) { // number of codes for each tree
   let rank; // index in bl_order
 
@@ -1469,10 +1463,10 @@ function send_all_trees(lcodes: number, dcodes: number, blcodes: number) { // nu
   send_tree(dyn_dtree, dcodes - 1);
 }
 
-/* ==========================================================================
-	 * Determine the best encoding for the current block: dynamic trees, static
-	 * trees or store, and output the encoded block to the zip file.
-	 */
+/**
+ * Determine the best encoding for the current block: dynamic trees, static
+ * trees or store, and output the encoded block to the zip file.
+ **/
 function flush_block(eof: number) { // true if this is the last block for a file
   let opt_lenb,
     static_lenb, // opt_len and static_len in bytes
@@ -1544,13 +1538,13 @@ function flush_block(eof: number) { // true if this is the last block for a file
   }
 }
 
-/* ==========================================================================
-	 * Save the match info and tally the frequency counts. Return true if
-	 * the current block must be flushed.
-	 *
-	 * @param dist- distance of matched string
-	 * @param lc- (match length - MIN_MATCH) or unmatched char (if dist === 0)
-	 */
+/**
+ * Save the match info and tally the frequency counts. Return true if
+ * the current block must be flushed.
+ *
+ * @param dist- distance of matched string
+ * @param lc- (match length - MIN_MATCH) or unmatched char (if dist === 0)
+ **/
 function ct_tally(dist: number, lc: number) {
   l_buf[last_lit++] = lc;
   if (dist === 0) {
@@ -1600,12 +1594,12 @@ function ct_tally(dist: number, lc: number) {
   // 64K-1 bytes.
 }
 
-/* ==========================================================================
-	   * Send the block data compressed using the given Huffman trees
-	   *
-	   * @param ltree- literal tree
-	   * @param dtree- distance tree
-	   */
+/**
+ * Send the block data compressed using the given Huffman trees
+ *
+ * @param ltree- literal tree
+ * @param dtree- distance tree
+ **/
 function compress_block(ltree: DeflateCT[], dtree: DeflateCT[]) {
   let dist; // distance of matched string
   let lc; // match length or unmatched char (if dist === 0)
@@ -1653,13 +1647,13 @@ function compress_block(ltree: DeflateCT[], dtree: DeflateCT[]) {
   SEND_CODE(END_BLOCK, ltree);
 }
 
-/* ==========================================================================
-	 * Send a value on a given number of bits.
-	 * IN assertion: length <= 16 and value fits in length bits.
-	 *
-	 * @param value- value to send
-	 * @param length- number of bits
-	 */
+/**
+ * Send a value on a given number of bits.
+ * IN assertion: length <= 16 and value fits in length bits.
+ *
+ * @param value- value to send
+ * @param length- number of bits
+ **/
 let Buf_size = 16; // bit size of bi_buf
 function send_bits(value: number, length: number) {
   // If not enough room in bi_buf, use (valid) bits from bi_buf and
@@ -1676,14 +1670,14 @@ function send_bits(value: number, length: number) {
   }
 }
 
-/* ==========================================================================
-	 * Reverse the first len bits of a code, using straightforward code (a faster
-	 * method would use a table)
-	 * IN assertion: 1 <= len <= 15
-	 *
-	 * @param code- the value to invert
-	 * @param len- its bit length
-	 */
+/**
+ * Reverse the first len bits of a code, using straightforward code (a faster
+ * method would use a table)
+ * IN assertion: 1 <= len <= 15
+ *
+ * @param code- the value to invert
+ * @param len- its bit length
+ **/
 function bi_reverse(code: number, len: number) {
   let res = 0;
   do {
@@ -1694,9 +1688,7 @@ function bi_reverse(code: number, len: number) {
   return res >> 1;
 }
 
-/* ==========================================================================
-	 * Write out any remaining bits in an incomplete byte.
-	 */
+/** Write out any remaining bits in an incomplete byte  */
 function bi_windup() {
   if (bi_valid > 8) {
     put_short(bi_buf);
@@ -1725,7 +1717,10 @@ function qoutbuf() {
   }
 }
 
-export function deflate(arr: Uint8Array, level: number = DEFAULT_LEVEL) {
+export function deflate(
+  arr: Uint8Array,
+  level: number = DEFAULT_LEVEL,
+): Uint8Array {
   deflate_data = arr;
   deflate_pos = 0;
   deflate_start(level);
