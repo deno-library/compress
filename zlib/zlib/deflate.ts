@@ -166,7 +166,7 @@ function putShortMSB(s: any, b: any) {
  * (See also flush_pending()).
  */
 function read_buf(strm: any, buf: any, start: any, size: any) {
-  var len = strm.avail_in;
+  let len = strm.avail_in;
 
   if (len > size) len = size;
   if (len === 0) return 0;
@@ -197,28 +197,28 @@ function read_buf(strm: any, buf: any, start: any, size: any) {
  * OUT assertion: the match length is not greater than s->lookahead.
  */
 function longest_match(s: any, cur_match: any) {
-  var chain_length = s.max_chain_length; /* max hash chain length */
-  var scan = s.strstart; /* current string */
-  var match; /* matched string */
-  var len; /* length of current match */
-  var best_len = s.prev_length; /* best match length so far */
-  var nice_match = s.nice_match; /* stop if match long enough */
-  var limit = (s.strstart > (s.w_size - MIN_LOOKAHEAD))
+  let chain_length = s.max_chain_length; /* max hash chain length */
+  let scan = s.strstart; /* current string */
+  let match; /* matched string */
+  let len; /* length of current match */
+  let best_len = s.prev_length; /* best match length so far */
+  let nice_match = s.nice_match; /* stop if match long enough */
+  let limit = (s.strstart > (s.w_size - MIN_LOOKAHEAD))
     ? s.strstart - (s.w_size - MIN_LOOKAHEAD)
     : 0 /*NIL*/;
 
-  var _win = s.window; // shortcut
+  let _win = s.window; // shortcut
 
-  var wmask = s.w_mask;
-  var prev = s.prev;
+  let wmask = s.w_mask;
+  let prev = s.prev;
 
   /* Stop when cur_match becomes <= limit. To simplify the code,
    * we prevent matches with the string of window index 0.
    */
 
-  var strend = s.strstart + MAX_MATCH;
-  var scan_end1 = _win[scan + best_len - 1];
-  var scan_end = _win[scan + best_len];
+  let strend = s.strstart + MAX_MATCH;
+  let scan_end1 = _win[scan + best_len - 1];
+  let scan_end = _win[scan + best_len];
 
   /* The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
    * It is easy to get rid of this optimization if necessary.
@@ -316,8 +316,8 @@ function longest_match(s: any, cur_match: any) {
  *    option -- not supported here).
  */
 function fill_window(s: any) {
-  var _w_size = s.w_size;
-  var p, n, m, more, str;
+  let _w_size = s.w_size;
+  let p, n, m, more, str;
 
   //Assert(s->lookahead < MIN_LOOKAHEAD, "already enough lookahead");
 
@@ -430,8 +430,8 @@ function fill_window(s: any) {
    * routines allow scanning to strstart + MAX_MATCH, ignoring lookahead.
    */
   //  if (s.high_water < s.window_size) {
-  //    var curr = s.strstart + s.lookahead;
-  //    var init = 0;
+  //    let curr = s.strstart + s.lookahead;
+  //    let init = 0;
   //
   //    if (s.high_water < curr) {
   //      /* Previous high water mark below current data -- zero WIN_INIT
@@ -473,7 +473,7 @@ function deflate_stored(s: any, flush: any) {
   /* Stored blocks are limited to 0xffff bytes, pending_buf is limited
    * to pending_buf_size, and each stored block has a 5 byte header:
    */
-  var max_block_size = 0xffff;
+  let max_block_size = 0xffff;
 
   if (max_block_size > s.pending_buf_size - 5) {
     max_block_size = s.pending_buf_size - 5;
@@ -507,7 +507,7 @@ function deflate_stored(s: any, flush: any) {
     s.lookahead = 0;
 
     /* Emit a stored block if pending_buf will be full: */
-    var max_start = s.block_start + max_block_size;
+    let max_start = s.block_start + max_block_size;
 
     if (s.strstart === 0 || s.strstart >= max_start) {
       /* strstart == 0 is possible when wraparound on 16-bit machine */
@@ -565,8 +565,8 @@ function deflate_stored(s: any, flush: any) {
  * matches. It is used only for the fast compression options.
  */
 function deflate_fast(s: any, flush: any) {
-  var hash_head; /* head of the hash chain */
-  var bflush; /* set if current block must be flushed */
+  let hash_head; /* head of the hash chain */
+  let bflush; /* set if current block must be flushed */
 
   for (;;) {
     /* Make sure that we always have enough lookahead, except
@@ -707,10 +707,10 @@ function deflate_fast(s: any, flush: any) {
  * no better match at the next window position.
  */
 function deflate_slow(s: any, flush: any) {
-  var hash_head; /* head of hash chain */
-  var bflush; /* set if current block must be flushed */
+  let hash_head; /* head of hash chain */
+  let bflush; /* set if current block must be flushed */
 
-  var max_insert;
+  let max_insert;
 
   /* Process the input block. */
   for (;;) {
@@ -880,11 +880,11 @@ function deflate_slow(s: any, flush: any) {
  * deflate switches away from Z_RLE.)
  */
 function deflate_rle(s: any, flush: any) {
-  var bflush; /* set if current block must be flushed */
-  var prev; /* byte at distance one to match */
-  var scan, strend; /* scan goes up to strend for length of run */
+  let bflush; /* set if current block must be flushed */
+  let prev; /* byte at distance one to match */
+  let scan, strend; /* scan goes up to strend for length of run */
 
-  var _win = s.window;
+  let _win = s.window;
 
   for (;;) {
     /* Make sure that we always have enough lookahead, except
@@ -980,7 +980,7 @@ function deflate_rle(s: any, flush: any) {
  * (It will be regenerated if this run of deflate switches away from Huffman.)
  */
 function deflate_huff(s: any, flush: any) {
-  var bflush; /* set if current block must be flushed */
+  let bflush; /* set if current block must be flushed */
 
   for (;;) {
     /* Make sure that we have a literal to write. */
@@ -1057,7 +1057,7 @@ class Config {
   }
 }
 
-var configuration_table: any;
+let configuration_table: any;
 
 configuration_table = [
   /*      good lazy nice chain */
@@ -1292,7 +1292,7 @@ export class DeflateState {
 }
 
 function deflateResetKeep(strm: ZStream) {
-  var s;
+  let s;
 
   if (!strm || !strm.state) {
     return err(strm, STATUS.Z_STREAM_ERROR.toString() as CODE);
@@ -1319,7 +1319,7 @@ function deflateResetKeep(strm: ZStream) {
 }
 
 function deflateReset(strm: ZStream) {
-  var ret = deflateResetKeep(strm);
+  let ret = deflateResetKeep(strm);
   if (ret === Z_OK) {
     lm_init(strm.state);
   }
@@ -1344,7 +1344,7 @@ export function deflateInit2(
   if (!strm) { // === Z_NULL
     return STATUS.Z_STREAM_ERROR as CODE;
   }
-  var wrap = 1;
+  let wrap = 1;
 
   if (level === Z_DEFAULT_COMPRESSION) {
     level = 6;
@@ -1372,7 +1372,7 @@ export function deflateInit2(
   }
   /* until 256-byte window bug fixed */
 
-  var s = new DeflateState();
+  let s = new DeflateState();
 
   strm.state = s;
   s.strm = strm;
@@ -1429,8 +1429,8 @@ function deflateInit(strm: ZStream, level: number) {
 }
 
 export function deflate(strm: ZStream, flush: number) {
-  var old_flush, s;
-  var beg, val; // for gzip header write only
+  let old_flush, s;
+  let beg, val; // for gzip header write only
 
   if (
     !strm || !strm.state ||
@@ -1511,8 +1511,8 @@ export function deflate(strm: ZStream, flush: number) {
       }
     } // DEFLATE header
     else {
-      var header = (Z_DEFLATED + ((s.w_bits - 8) << 4)) << 8;
-      var level_flags = -1;
+      let header = (Z_DEFLATED + ((s.w_bits - 8) << 4)) << 8;
+      let level_flags = -1;
 
       if (s.strategy >= Z_HUFFMAN_ONLY || s.level < 2) {
         level_flags = 0;
@@ -1695,7 +1695,7 @@ export function deflate(strm: ZStream, flush: number) {
     strm.avail_in !== 0 || s.lookahead !== 0 ||
     (flush !== STATUS.Z_NO_FLUSH && s.status !== FINISH_STATE)
   ) {
-    var bstate = (s.strategy === Z_HUFFMAN_ONLY)
+    let bstate = (s.strategy === Z_HUFFMAN_ONLY)
       ? deflate_huff(s, flush)
       : (s.strategy === Z_RLE
         ? deflate_rle(s, flush)
@@ -1778,7 +1778,7 @@ export function deflate(strm: ZStream, flush: number) {
 }
 
 export function deflateEnd(strm: ZStream): any {
-  var status;
+  let status;
 
   if (!strm /*== Z_NULL*/ || !strm.state /*== Z_NULL*/) {
     return Z_STREAM_ERROR;
@@ -1810,15 +1810,15 @@ export function deflateSetDictionary(
   strm: ZStream,
   dictionary: Uint8Array,
 ): any {
-  var dictLength = dictionary.length;
+  let dictLength = dictionary.length;
 
-  var s;
-  var str, n;
-  var wrap;
-  var avail;
-  var next;
-  var input;
-  var tmpDict;
+  let s;
+  let str, n;
+  let wrap;
+  let avail;
+  let next;
+  let input;
+  let tmpDict;
 
   if (!strm /*== Z_NULL*/ || !strm.state /*== Z_NULL*/) {
     return Z_STREAM_ERROR;
