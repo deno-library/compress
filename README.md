@@ -90,7 +90,7 @@ await gzip.compress("./big.mkv", "./big.mkv.gz");
 await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 ```  
 
-__no stream__  
+__no stream mode__  
 loading all data into memory, so can't get `progress` event
 ```ts
 import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.2.1/mod.ts";
@@ -98,7 +98,7 @@ await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
 
-**gzip or gunzip**  
+**gzip or gunzip string or bytes**  
 > This is a pure TypeScript implementation. Almost as fast as Rust implementation.
 ```ts
 import { gzip, gunzip } from "https://deno.land/x/compress@v0.2.1/mod.ts";
