@@ -4,7 +4,7 @@ compress and uncompress for Deno
 * [x] tar
 * [x] deflate
 * [x] gzip
-* [ ] tgz
+* [x] tgz
 * [ ] zip
 
 ## Useage  
@@ -32,7 +32,8 @@ await tar.compress("./test","./test.tar");
 await tar.compress("./test","./test.tar", { excludeSrc: true });
 // compress file
 await tar.compress("./test.txt","./test.tar");
-await tar.uncompress("./test.tar","./test");
+// uncompress
+await tar.uncompress("./test.tar","./dest");
 ```
 
 ### deflate  
@@ -109,7 +110,8 @@ const compressed = gzip(bytes);
 const decompressed = gunzip(compressed);
 ```
 
-### tgz
+### tgz  
+
 #### defination
 ```ts
 import { tgz } from "https://deno.land/x/compress@v0.2.2/mod.ts";
@@ -118,6 +120,19 @@ interface compressInterface {
 }
 tgz.compress(src, dest, options?: compressInterface): Promise<void>;
 tgz.uncompress(src, dest): Promise<void>;
+```  
+
+#### exmaple
+```ts
+import { tgz } from "https://deno.land/x/compress@v0.2.2/mod.ts";
+// compress folder
+await tgz.compress("./test","./test.tar.gz");
+// compress folder, exclude src directory
+await tgz.compress("./test","./test.tar.gz", { excludeSrc: true });
+// compress file
+await tgz.compress("./test.txt","./test.tar.gz");
+// uncompress 
+await tgz.uncompress("./test.tar.gz","./dest");
 ```
 
 ### zip
