@@ -43,6 +43,7 @@ export async function compress(
           await tar.append(
             `${fileName}/`,
             {
+              filePath,
               type: "5",
               mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
               contentSize: 0,
@@ -66,6 +67,7 @@ export async function compress(
       await tar.append(
         `${folderName}/`,
         {
+          filePath: src,
           type: "5",
           mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
           contentSize: 0,
