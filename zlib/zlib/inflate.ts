@@ -1,4 +1,3 @@
-import * as utils from "../utils/mod.ts";
 import adler32 from "./adler32.ts";
 import { crc32 } from "./crc32.ts";
 import inflate_fast from "./inffast.ts";
@@ -329,7 +328,7 @@ function updatewindow(strm: ZStream, src: any, end: any, copy: any) {
 
   /* copy state->wsize or less output bytes into the circular window */
   if (copy >= state.wsize) {
-    utils.arraySet( src, end - state.wsize, state.wsize, state.window,0);
+    state.window.set(src.subarray(end - state.wsize, end), 0);
     state.wnext = 0;
     state.whave = state.wsize;
   } else {
@@ -338,11 +337,11 @@ function updatewindow(strm: ZStream, src: any, end: any, copy: any) {
       dist = copy;
     }
     //zmemcpy(state->window + state->wnext, end - copy, dist);
-    utils.arraySet(src, end - copy, dist, state.window, state.wnext);
+    state.window.set(src.subarray(end - copy, end - copy + dist), state.wnext);
     copy -= dist;
     if (copy) {
       //zmemcpy(state->window, end - copy, copy);
-      utils.arraySet( src, end - copy, copy,state.window, 0);
+      state.window.set(src.subarray(end - copy, end), 0);
       state.wnext = copy;
       state.whave = state.wsize;
     } else {
@@ -606,16 +605,10 @@ export function inflate(strm: ZStream, flush: any) {
                 // Use untyped array for more convenient processing later
                 state.head.extra = new Array(state.head.extra_len);
               }
-              utils.arraySet(
-                input,
-                next,
-                // extra field is limited to 65536 bytes
-                // - no need for additional size check
-                copy,
-                state.head.extra,
-                /*len + copy > state.head.extra_max - len ? state.head.extra_max : copy,*/
-                len,
-              );
+              // extra field is limited to 65536 bytes
+              // - no need for additional size check
+              /*len + copy > state.head.extra_max - len ? state.head.extra_max : copy,*/
+              state.head.extra.set(input.subarray(next, next + copy), len);
               //zmemcpy(state.head.extra + len, next,
               //        len + copy > state.head.extra_max ?
               //        state.head.extra_max - len : copy);
@@ -840,7 +833,7 @@ export function inflate(strm: ZStream, flush: any) {
           if (copy > left) copy = left;
           if (copy === 0) break inf_leave;
           //--- zmemcpy(put, next, copy); ---
-          utils.arraySet(input, next, copy, output, put);
+          output.set(input.subarray(next, next + copy), put);
           //---//
           have -= copy;
           next += copy;

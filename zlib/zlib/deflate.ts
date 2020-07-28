@@ -1,6 +1,5 @@
 import { message as msg, CODE } from "./messages.ts";
 import ZStream from "./zstream.ts";
-import * as utils from "../utils/mod.ts";
 import * as trees from "./trees.ts";
 import adler32 from "./adler32.ts";
 import { crc32 } from "./crc32.ts";
@@ -118,12 +117,8 @@ function flush_pending(strm: ZStream) {
     len = strm.avail_out;
   }
   if (len === 0) return;
-
-  utils.arraySet(
-    s.pending_buf,
-    s.pending_out,
-    len,
-    strm.output as Uint8Array,
+  strm.output!.set(
+    s.pending_buf.subarray(s.pending_out, s.pending_out + len),
     strm.next_out,
   );
   strm.next_out += len;
@@ -179,7 +174,7 @@ function read_buf(strm: any, buf: any, start: any, size: any) {
   strm.avail_in -= len;
 
   // zmemcpy(buf, strm->next_in, len);
-  utils.arraySet(strm.input, strm.next_in, len, buf, start);
+  buf.set(strm.input.subarray(strm.next_in, strm.next_in + len), start);
   if (strm.state.wrap === 1) {
     strm.adler = adler32(strm.adler, buf, len, start);
   } else if (strm.state.wrap === 2) {
@@ -347,7 +342,7 @@ function fill_window(s: any) {
      * move the upper half to the lower one to make room in the upper half.
      */
     if (s.strstart >= _w_size + (_w_size - MIN_LOOKAHEAD)) {
-      utils.arraySet(s.window, _w_size, _w_size, s.window, 0);
+      s.window.set(s.window.subarray(_w_size, _w_size + _w_size), 0);
       s.match_start -= _w_size;
       s.strstart -= _w_size;
       /* we now have strstart >= MAX_DIST */
@@ -1857,7 +1852,7 @@ export function deflateSetDictionary(
     /* use the tail */
     // dictionary = dictionary.slice(dictLength - s.w_size);
     tmpDict = new Uint8Array(s.w_size);
-    utils.arraySet(dictionary, dictLength - s.w_size, s.w_size, tmpDict, 0);
+    tmpDict.set(dictionary.subarray(dictLength - s.w_size, dictLength), 0);
     dictionary = tmpDict;
     dictLength = s.w_size;
   }
