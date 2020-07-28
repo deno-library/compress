@@ -1,12 +1,14 @@
-import { Tar, Untar, ensureDir, resolve, basename } from "../deps.ts";
+import { Tar, Untar, ensureDir, path } from "../deps.ts";
 import { compressInterface } from "../interface.ts";
 
 export async function uncompress(src: string, dest: string): Promise<void> {
   const reader = await Deno.open(src, { read: true });
   const untar = new Untar(reader);
   for await (const entry of untar) {
-    const filePath = resolve(dest, entry.fileName);
-    if (entry.type === "directory") {
+    const filePath = path.resolve(dest, entry.fileName);
+    // isDirectory is not correct, because deno set type: "0" always when append
+    // if (entry.type === "directory") {
+    if (entry.fileName.endsWith("/")) {
       await ensureDir(filePath);
       continue;
     }
@@ -25,23 +27,34 @@ export async function compress(
   const tar = new Tar();
   const stat = await Deno.lstat(src);
   if (stat.isFile) {
-    await tar.append(basename(src), {
+    await tar.append(path.basename(src), {
       filePath: src,
+      contentSize: stat.size,
+      mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
     });
   } else {
     const appendFolder = async (folder: string, prefix?: string) => {
-      for await (const { isDirectory, name } of Deno.readDir(folder)) {
+      for await (const entry of Deno.readDir(folder)) {
+        const { isDirectory, name } = entry;
         const fileName = prefix ? `${prefix}/${name}` : name;
-        const filePath = resolve(folder, name);
+        const filePath = path.resolve(folder, name);
+        const stat = await Deno.stat(filePath);
         if (isDirectory) {
           await tar.append(
             `${fileName}/`,
-            { reader: new Deno.Buffer(), contentSize: 0 },
+            {
+              type: "5",
+              mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
+              contentSize: 0,
+              reader: new Deno.Buffer(),
+            },
           );
           await appendFolder(filePath, fileName);
         } else {
           await tar.append(fileName, {
             filePath,
+            mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
+            contentSize: stat.size,
           });
         }
       }
@@ -49,10 +62,15 @@ export async function compress(
     if (options?.excludeSrc) {
       await appendFolder(src);
     } else {
-      const folderName = basename(src);
+      const folderName = path.basename(src);
       await tar.append(
         `${folderName}/`,
-        { reader: new Deno.Buffer(), contentSize: 0 },
+        {
+          type: "5",
+          mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
+          contentSize: 0,
+          reader: new Deno.Buffer(),
+        },
       );
       await appendFolder(src, folderName);
     }

@@ -28,7 +28,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
     this.onceSize = options?.onceSize ?? 1024 * 1024;
   }
 
-  async setup(name: string, timestamp: number): Promise<void> {
+  async setup(name?: string, timestamp?: number): Promise<void> {
     this.writer = await Deno.open(this.path, {
       write: true,
       create: true,

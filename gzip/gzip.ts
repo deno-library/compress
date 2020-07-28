@@ -140,7 +140,7 @@ export function getHeader(
   }
 
   putByte(flags, out);
-  putLong(options.timestamp || Math.floor(Date.now() / 1000), out);
+  putLong(options.timestamp ?? Math.floor(Date.now() / 1000), out);
 
   // put deflate args (extra flags)
   if (level === 1) {
@@ -185,7 +185,7 @@ export function gzip(
   }
 
   putByte(flags, out);
-  putLong(options.timestamp || Math.floor(Date.now() / 1000), out);
+  putLong(options.timestamp ?? Math.floor(Date.now() / 1000), out);
 
   // put deflate args (extra flags)
   if (level === 1) {
