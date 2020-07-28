@@ -1,5 +1,5 @@
 /** very fast */
-import { gzip , gunzip} from "./mod.ts";
+import { gzip, gunzip } from "../zlib/mod.ts";
 /** slow */
 // import { gzip, gunzip } from "./gzip.ts";
 

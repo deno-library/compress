@@ -1,8 +1,6 @@
 import { EventEmitter, Crc32Stream } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { getHeader, putLong } from "./gzip.ts";
-// import { deflate } from "../deflate/mod.ts";
-// import { deflate } from "https://deno.land/x/denoflate/mod.ts";
 import { Deflate } from "../zlib/mod.ts";
 
 type File = Deno.File;

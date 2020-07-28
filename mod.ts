@@ -1,6 +1,20 @@
 export * as tar from "./tar/mod.ts";
-export { gzip, gunzip, GzipStream } from "./gzip/mod.ts";
+export {
+  gzipFile,
+  gunzipFile,
+  GzipStream,
+  /** slow */
+  // gzip,
+  // gunzip,
+} from "./gzip/mod.ts";
 /** slow */
 // export { deflateRaw, inflateRaw } from "./deflate/mod.ts";
-/** very fast */
-export { deflate, inflate, deflateRaw, inflateRaw } from "./zlib/mod.ts";
+/** fast */
+export {
+  deflate,
+  inflate,
+  deflateRaw,
+  inflateRaw,
+  gzip,
+  gunzip,
+} from "./zlib/mod.ts";
