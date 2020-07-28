@@ -15,7 +15,7 @@ If you read and write files, need the following permissions
 
 #### defination
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
@@ -25,7 +25,7 @@ tar.uncompress(src, dest): Promise<void>;
 
 #### exmaple
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 // compress folder
 await tar.compress("./test","./test.tar");
 // compress folder, exclude src directory
@@ -45,7 +45,7 @@ import {
   /** Compress data using deflate, and do not append a zlib header. */
   deflateRaw, 
   inflateRaw
- } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+ } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 const str = "hello world!";
 const bytes = new TextEncoder().encode(str);
 // with zlib header
@@ -82,7 +82,7 @@ compress and uncompress file, only supports compressing and decompressing a sing
 __stream mode__  
 used to read and write large files
 ```ts
-import { GzipStream } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+import { GzipStream } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
@@ -94,7 +94,7 @@ await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 __no stream mode__  
 loading all data into memory, so can't get `progress` event
 ```ts
-import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
@@ -102,7 +102,7 @@ await gunzipFile("./deno.txt.gz", "./deno.txt");
 **gzip/gunzip string or bytes**  
 > This is a pure TypeScript implementation. Almost as fast as Rust implementation.
 ```ts
-import { gzip, gunzip } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+import { gzip, gunzip } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 // gzip
 const bytes = new TextEncoder().encode("hello");
 const compressed = gzip(bytes);
@@ -114,7 +114,7 @@ const decompressed = gunzip(compressed);
 
 #### defination
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+import { tgz } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
@@ -124,7 +124,7 @@ tgz.uncompress(src, dest): Promise<void>;
 
 #### exmaple
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+import { tgz } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 // compress folder
 await tgz.compress("./test","./test.tar.gz");
 // compress folder, exclude src directory
@@ -138,7 +138,7 @@ await tgz.uncompress("./test.tar.gz","./dest");
 ### zip
 #### defination
 ```ts
-import { zip } from "https://deno.land/x/compress@v0.3.1/mod.ts";
+import { zip } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
