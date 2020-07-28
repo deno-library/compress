@@ -98,7 +98,7 @@ await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
 
-**gzip or gunzip string or bytes**  
+**gzip/gunzip string or bytes**  
 > This is a pure TypeScript implementation. Almost as fast as Rust implementation.
 ```ts
 import { gzip, gunzip } from "https://deno.land/x/compress@v0.2.1/mod.ts";
