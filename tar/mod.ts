@@ -6,9 +6,7 @@ export async function uncompress(src: string, dest: string): Promise<void> {
   const untar = new Untar(reader);
   for await (const entry of untar) {
     const filePath = path.resolve(dest, entry.fileName);
-    // isDirectory is not correct, because deno set type: "0" always when append
-    // if (entry.type === "directory") {
-    if (entry.fileName.endsWith("/")) {
+    if (entry.type === "directory") {
       await ensureDir(filePath);
       continue;
     }
@@ -43,11 +41,10 @@ export async function compress(
           await tar.append(
             `${fileName}/`,
             {
-              filePath,
-              type: "5",
-              mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
-              contentSize: 0,
               reader: new Deno.Buffer(),
+              contentSize: 0,
+              type: "directory",
+              mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
             },
           );
           await appendFolder(filePath, fileName);
@@ -68,10 +65,10 @@ export async function compress(
         `${folderName}/`,
         {
           filePath: src,
-          type: "5",
-          mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
-          contentSize: 0,
-          reader: new Deno.Buffer(),
+          // type: "directory",
+          // mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
+          // contentSize: 0,
+          // reader: new Deno.Buffer(),
         },
       );
       await appendFolder(src, folderName);
