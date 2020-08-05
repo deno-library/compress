@@ -12,7 +12,7 @@ If you read and write files, need the following permissions
 > --allow-read --allow-write
 
 ### tar 
-Deno v1.2.1+ required.(Please wait, the current deno version v1.2.1)
+Deno v1.2.2+ required.(version >= v1.2.2)
 
 if you use deno <= v1.2.1, you can use compress@v0.3.2.
 But there is a bug: the added folders have a wrong type "file".
@@ -22,9 +22,9 @@ The reason can be seen here:
 
 #### defination
 ```ts
-// deno > v1.2.1
+// deno >= v1.2.2
 import { tar } from "https://deno.land/x/compress@v0.3.3/mod.ts";
-// deno <= v1.2.1
+// deno < v1.2.2
 // import { tar } from "https://deno.land/x/compress@v0.3.2/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
