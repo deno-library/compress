@@ -105,7 +105,7 @@ __no stream mode__
 loading all data into memory, so can't get `progress` event
 ```ts
 import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.3.3/mod.ts";
-await gzipFile("./deno.txt", "./deno.txt.gz"); // stream
+await gzipFile("./deno.txt", "./deno.txt.gz");
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
 
