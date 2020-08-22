@@ -20,7 +20,7 @@ But there is a bug: the added folders have a wrong type "file".
 The reason can be seen here:
 > https://github.com/denoland/deno/pull/6905
 
-#### defination
+#### definition
 ```ts
 // deno >= v1.2.2
 import { tar } from "https://deno.land/x/compress@v0.3.3/mod.ts";
@@ -33,7 +33,7 @@ tar.compress(src, dest, options?: compressInterface): Promise<void>;
 tar.uncompress(src, dest): Promise<void>;
 ```
 
-#### exmaple
+#### example
 ```ts
 import { tar } from "https://deno.land/x/compress@v0.3.3/mod.ts";
 // compress folder
@@ -68,7 +68,7 @@ const decompressed = inflateRaw(compressed);
 
 ### gzip
 
-#### defination
+#### definition
 ```ts
 interface GzipOptions {
   level: number;
@@ -86,7 +86,7 @@ class GzipStream {
 }
 ```
 
-#### exmaple 
+#### example 
 compress and uncompress file, only supports compressing and decompressing a single file 
 
 __stream mode__  
@@ -122,7 +122,7 @@ const decompressed = gunzip(compressed);
 
 ### tgz  
 
-#### defination
+#### definition
 ```ts
 import { tgz } from "https://deno.land/x/compress@v0.3.3/mod.ts";
 interface compressInterface {
@@ -132,7 +132,7 @@ tgz.compress(src, dest, options?: compressInterface): Promise<void>;
 tgz.uncompress(src, dest): Promise<void>;
 ```  
 
-#### exmaple
+#### example
 ```ts
 import { tgz } from "https://deno.land/x/compress@v0.3.3/mod.ts";
 // compress folder
@@ -146,7 +146,7 @@ await tgz.uncompress("./test.tar.gz","./dest");
 ```
 
 ### zip
-#### defination
+#### definition
 ```ts
 import { zip } from "https://deno.land/x/compress@v0.3.3/mod.ts";
 interface compressInterface {
