@@ -2,7 +2,7 @@ import adler32 from "./adler32.ts";
 import { crc32 } from "./crc32.ts";
 import inflate_fast from "./inffast.ts";
 import inflate_table from "./inftrees.ts";
-import ZStream from "./zstream.ts";
+import type ZStream from "./zstream.ts";
 
 const CODES = 0;
 const LENS = 1;
