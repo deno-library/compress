@@ -1,5 +1,5 @@
 import { message as msg, CODE } from "./messages.ts";
-import ZStream from "./zstream.ts";
+import type ZStream from "./zstream.ts";
 import * as trees from "./trees.ts";
 import adler32 from "./adler32.ts";
 import { crc32 } from "./crc32.ts";

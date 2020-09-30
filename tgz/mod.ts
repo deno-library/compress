@@ -1,6 +1,6 @@
 import * as tar from "../tar/mod.ts";
 import { gzipFile, gunzipFile } from "../gzip/gzip_file.ts";
-import { compressInterface } from "../interface.ts";
+import type { compressInterface } from "../interface.ts";
 import { path } from "../deps.ts";
 
 export async function uncompress(src: string, dest: string): Promise<void> {
