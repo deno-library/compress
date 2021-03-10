@@ -1,4 +1,4 @@
-import { Tar, Untar, ensureDir, path } from "../deps.ts";
+import { Tar, Untar, ensureDir, ensureFile, path } from "../deps.ts";
 import type { compressInterface } from "../interface.ts";
 
 export async function uncompress(src: string, dest: string): Promise<void> {
@@ -10,6 +10,7 @@ export async function uncompress(src: string, dest: string): Promise<void> {
       await ensureDir(filePath);
       continue;
     }
+    await ensureFile(filePath);
     const file = await Deno.open(filePath, { write: true, create: true });
     await Deno.copy(entry, file);
     await file.close();
