@@ -13,7 +13,7 @@ export async function readMsg(reader: Deno.Reader): Promise<Uint8Array | null> {
       arr.push(p);
     }
   }
-  if (readed === null) return readed;
+  if (readed === null) return null;
   const result = concatUint8Array(arr);
   return result;
 }
