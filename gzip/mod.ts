@@ -1,3 +1,3 @@
-export { gzip, gunzip } from "./gzip.ts";
+export { gunzip, gzip } from "./gzip.ts";
 export { GzipStream } from "./gzip_stream.ts";
-export { gzipFile, gunzipFile } from "./gzip_file.ts";
+export { gunzipFile, gzipFile } from "./gzip_file.ts";

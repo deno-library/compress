@@ -1,7 +1,7 @@
 // from https://github.com/nodeca/pako
 import * as zlib_deflate from "./zlib/deflate.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
-import { message as msg, CODE } from "./zlib/messages.ts";
+import { CODE, message as msg } from "./zlib/messages.ts";
 import ZStream from "./zlib/zstream.ts";
 import STATUS from "./zlib/status.ts";
 

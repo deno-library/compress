@@ -933,8 +933,8 @@ export function inflate(strm: ZStream, flush: any) {
           for (;;) {
             here = state
               .lencode[
-              hold & ((1 << state.lenbits) - 1)
-            ]; /*BITS(state.lenbits)*/
+                hold & ((1 << state.lenbits) - 1)
+              ]; /*BITS(state.lenbits)*/
             here_bits = here >>> 24;
             here_op = (here >>> 16) & 0xff;
             here_val = here & 0xffff;
@@ -1131,8 +1131,8 @@ export function inflate(strm: ZStream, flush: any) {
         for (;;) {
           here = state
             .lencode[
-            hold & ((1 << state.lenbits) - 1)
-          ]; /*BITS(state.lenbits)*/
+              hold & ((1 << state.lenbits) - 1)
+            ]; /*BITS(state.lenbits)*/
           here_bits = here >>> 24;
           here_op = (here >>> 16) & 0xff;
           here_val = here & 0xffff;
@@ -1227,8 +1227,8 @@ export function inflate(strm: ZStream, flush: any) {
         for (;;) {
           here = state
             .distcode[
-            hold & ((1 << state.distbits) - 1)
-          ]; /*BITS(state.distbits)*/
+              hold & ((1 << state.distbits) - 1)
+            ]; /*BITS(state.distbits)*/
           here_bits = here >>> 24;
           here_op = (here >>> 16) & 0xff;
           here_val = here & 0xffff;

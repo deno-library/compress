@@ -1,4 +1,4 @@
-import { message as msg, CODE } from "./messages.ts";
+import { CODE, message as msg } from "./messages.ts";
 import type ZStream from "./zstream.ts";
 import * as trees from "./trees.ts";
 import adler32 from "./adler32.ts";

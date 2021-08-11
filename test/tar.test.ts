@@ -1,7 +1,4 @@
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std/testing/asserts.ts";
+import { assert, assertEquals } from "https://deno.land/std/testing/asserts.ts";
 import { tar } from "../mod.ts";
 
 Deno.test("tar.compress file", async () => {

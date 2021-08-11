@@ -2,7 +2,7 @@
 import { concatUint8Array } from "../utils/uint8.ts";
 import * as zlib_inflate from "./zlib/inflate.ts";
 import STATUS from "./zlib/status.ts";
-import { message as msg, CODE } from "./zlib/messages.ts";
+import { CODE, message as msg } from "./zlib/messages.ts";
 import ZStream from "./zlib/zstream.ts";
 import GZheader from "./zlib/gzheader.ts";
 
