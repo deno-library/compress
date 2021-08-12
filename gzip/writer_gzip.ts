@@ -1,4 +1,4 @@
-import { EventEmitter, Crc32Stream } from "../deps.ts";
+import { Crc32Stream, EventEmitter } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { getHeader, putLong } from "./gzip.ts";
 import { Deflate } from "../zlib/mod.ts";

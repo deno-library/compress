@@ -1,4 +1,4 @@
-import { Tar, Untar, ensureDir, path } from "../deps.ts";
+import { ensureDir, path, Tar, Untar } from "../deps.ts";
 import type { compressInterface } from "../interface.ts";
 
 export async function uncompress(src: string, dest: string): Promise<void> {

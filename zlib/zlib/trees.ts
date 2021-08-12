@@ -633,7 +633,7 @@ function copy_block(s: any, buf: any, len: any, header: any) {
 function smaller(tree: any, n: any, m: any, depth: any) {
   let _n2 = n * 2;
   let _m2 = m * 2;
-  return (tree[_n2] /*.Freq*/ < tree[_m2] /*.Freq*/  ||
+  return (tree[_n2] /*.Freq*/ < tree[_m2] /*.Freq*/ ||
     (tree[_n2] /*.Freq*/ === tree[_m2] /*.Freq*/ && depth[n] <= depth[m]));
 }
 
@@ -786,15 +786,12 @@ function build_tree(s: any, desc: any) {
   do {
     //pqremove(s, tree, n);  /* n = node of least frequency */
     /*** pqremove ***/
-    n = s.heap[1/*SMALLEST*/
-    ];
-    s.heap[1/*SMALLEST*/
-    ] = s.heap[s.heap_len--];
+    n = s.heap[1 /*SMALLEST*/];
+    s.heap[1 /*SMALLEST*/] = s.heap[s.heap_len--];
     pqdownheap(s, tree, 1 /*SMALLEST*/);
     /***/
 
-    m = s.heap[1/*SMALLEST*/
-    ]; /* m = node of next least frequency */
+    m = s.heap[1 /*SMALLEST*/]; /* m = node of next least frequency */
 
     s.heap[--s.heap_max] = n; /* keep the nodes sorted by frequency */
     s.heap[--s.heap_max] = m;
@@ -805,13 +802,11 @@ function build_tree(s: any, desc: any) {
     tree[n * 2 + 1] /*.Dad*/ = tree[m * 2 + 1] /*.Dad*/ = node;
 
     /* and insert the new node in the heap */
-    s.heap[1/*SMALLEST*/
-    ] = node++;
+    s.heap[1 /*SMALLEST*/] = node++;
     pqdownheap(s, tree, 1 /*SMALLEST*/);
   } while (s.heap_len >= 2);
 
-  s.heap[--s.heap_max] = s.heap[1/*SMALLEST*/
-  ];
+  s.heap[--s.heap_max] = s.heap[1 /*SMALLEST*/];
 
   /* At this point, the fields freq and dad are set. We can now
    * generate the bit lengths.
