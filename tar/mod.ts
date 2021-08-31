@@ -1,4 +1,4 @@
-import { ensureDir, path, Tar, Untar, copy, Buffer } from "../deps.ts";
+import { Buffer, copy, ensureDir, path, Tar, Untar } from "../deps.ts";
 import type { compressInterface } from "../interface.ts";
 
 export async function uncompress(src: string, dest: string): Promise<void> {
@@ -33,6 +33,7 @@ export async function compress(
     });
   } else {
     const appendFolder = async (folder: string, prefix?: string) => {
+      Recursion:
       for await (const entry of Deno.readDir(folder)) {
         const { isDirectory, name } = entry;
         const fileName = prefix ? `${prefix}/${name}` : name;
@@ -48,7 +49,14 @@ export async function compress(
               mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
             },
           );
-          await appendFolder(filePath, fileName);
+
+          // Recursive way 
+          // await appendFolder(filePath, fileName);
+
+          // fix for issue: https://github.com/deno-library/compress/issues/8
+          folder = filePath;
+          prefix = fileName;
+          continue Recursion;
         } else {
           await tar.append(fileName, {
             filePath,
