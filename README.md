@@ -23,9 +23,9 @@ Deno v1.2.2+ required. The reason can be seen here:
 #### definition
 
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.3.9/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.4.0/mod.ts";
 // or only import tar
-// import { tar } from "https://deno.land/x/compress@v0.3.9/tar/mod.ts";
+// import { tar } from "https://deno.land/x/compress@v0.4.0/tar/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
@@ -36,7 +36,7 @@ tar.uncompress(src, dest): Promise<void>;
 #### example
 
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.3.9/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.4.0/mod.ts";
 // compress folder
 await tar.compress("./test", "./test.tar");
 // compress folder, exclude src directory
@@ -58,9 +58,9 @@ import {
   deflateRaw,
   inflate,
   inflateRaw,
-} from "https://deno.land/x/compress@v0.3.9/mod.ts";
+} from "https://deno.land/x/compress@v0.4.0/mod.ts";
 // or only import deflate, inflate, deflateRaw, inflateRaw
-// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.3.9/zlib/mod.ts";
+// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.4.0/zlib/mod.ts";
 const str = "hello world!";
 const bytes = new TextEncoder().encode(str);
 // with zlib header
@@ -101,9 +101,9 @@ single file
 used to read and write large files
 
 ```ts
-import { GzipStream } from "https://deno.land/x/compress@v0.3.9/mod.ts";
+import { GzipStream } from "https://deno.land/x/compress@v0.4.0/mod.ts";
 // or only import GzipStream
-// import { GzipStream } from "https://deno.land/x/compress@v0.3.9/gzip/mod.ts";
+// import { GzipStream } from "https://deno.land/x/compress@v0.4.0/gzip/mod.ts";
 const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
@@ -119,9 +119,9 @@ loading all data into memory, so can't get `progress` event
 import {
   gunzipFile,
   gzipFile,
-} from "https://deno.land/x/compress@v0.3.9/mod.ts";
+} from "https://deno.land/x/compress@v0.4.0/mod.ts";
 // or only import gzipFile, gunzipFile
-// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.3.9/gzip/mod.ts";
+// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.4.0/gzip/mod.ts";
 await gzipFile("./deno.txt", "./deno.txt.gz");
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
@@ -132,9 +132,9 @@ await gunzipFile("./deno.txt.gz", "./deno.txt");
 > implementation.
 
 ```ts
-import { gunzip, gzip } from "https://deno.land/x/compress@v0.3.9/mod.ts";
+import { gunzip, gzip } from "https://deno.land/x/compress@v0.4.0/mod.ts";
 // or only import gzip, gunzip
-// import { gzip, gunzip } from "https://deno.land/x/compress@v0.3.9/zlib/mod.ts";
+// import { gzip, gunzip } from "https://deno.land/x/compress@v0.4.0/zlib/mod.ts";
 // gzip
 const bytes = new TextEncoder().encode("hello");
 const compressed = gzip(bytes);
@@ -147,9 +147,9 @@ const decompressed = gunzip(compressed);
 #### definition
 
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.3.9/mod.ts";
+import { tgz } from "https://deno.land/x/compress@v0.4.0/mod.ts";
 // or only import tgz
-// import { tgz } from "https://deno.land/x/compress@v0.3.9/tgz/mod.ts";
+// import { tgz } from "https://deno.land/x/compress@v0.4.0/tgz/mod.ts";
 interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
@@ -160,7 +160,7 @@ tgz.uncompress(src, dest): Promise<void>;
 #### example
 
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.3.9/mod.ts";
+import { tgz } from "https://deno.land/x/compress@v0.4.0/mod.ts";
 // compress folder
 await tgz.compress("./test", "./test.tar.gz");
 // compress folder, exclude src directory
@@ -178,7 +178,7 @@ Not implemented
 #### definition
 
 ```ts
-import { zip } from "https://deno.land/x/compress@v0.3.9/mod.ts";
+import { zip } from "https://deno.land/x/compress@v0.4.0/mod.ts";
 interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
