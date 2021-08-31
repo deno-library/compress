@@ -79,7 +79,7 @@ function readShort(arr: number[]) {
 }
 
 function readLong(arr: number[]) {
-  let n1 = readShort(arr);
+  const n1 = readShort(arr);
   let n2 = readShort(arr);
 
   // JavaScript can't handle bits in the position 32
@@ -126,8 +126,8 @@ interface Options {
 export function getHeader(
   options: Options = {},
 ): Uint8Array {
-  let flags: number = 0;
-  let level: number = options.level ?? DEFAULT_LEVEL;
+  let flags = 0;
+  const level: number = options.level ?? DEFAULT_LEVEL;
   const out: number[] = [];
 
   putByte(ID1, out);
@@ -171,8 +171,8 @@ export function gzip(
   bytes: Uint8Array,
   options: Options = {},
 ): Uint8Array {
-  let flags: number = 0;
-  let level: number = options.level ?? DEFAULT_LEVEL;
+  let flags = 0;
+  const level: number = options.level ?? DEFAULT_LEVEL;
   const out: number[] = [];
 
   putByte(ID1, out);
@@ -230,7 +230,7 @@ export function gunzip(bytes: Uint8Array): Uint8Array {
 
   // give deflate everything but the last 8 bytes
   // the last 8 bytes are for the CRC32 checksum and filesize
-  let res: Uint8Array = inflateRaw(
+  const res: Uint8Array = inflateRaw(
     new Uint8Array(arr.splice(0, arr.length - 8)),
   );
 
@@ -240,12 +240,12 @@ export function gunzip(bytes: Uint8Array): Uint8Array {
   //   }).join("");
   // }
 
-  let crc: number = readLong(arr) >>> 0;
+  const crc: number = readLong(arr) >>> 0;
   if (crc !== parseInt(crc32(res), 16)) {
     throw "Checksum does not match";
   }
 
-  let size: number = readLong(arr);
+  const size: number = readLong(arr);
   if (size !== res.length) {
     throw "Size of decompressed file not correct";
   }
@@ -262,14 +262,14 @@ export function checkHeader(arr: number[]) {
     throw "Unsupported compression method";
   }
 
-  let flags: number = readByte(arr);
+  const flags: number = readByte(arr);
   readLong(arr); // mtime
   readByte(arr); // xFlags
   readByte(arr); // os, throw away
 
   // just throw away the bytes for now
   if (flags & possibleFlags["FEXTRA"]) {
-    let t: number = readShort(arr);
+    const t: number = readShort(arr);
     readBytes(arr, t);
   }
 
@@ -292,8 +292,8 @@ export function checkHeader(arr: number[]) {
 export function checkTail(arr: number[]) {
   const tail = arr.splice(arr.length - 8);
 
-  let crc32: number = readLong(tail) >>> 0;
-  let size: number = readLong(tail);
+  const crc32: number = readLong(tail) >>> 0;
+  const size: number = readLong(tail);
 
   return {
     crc32,

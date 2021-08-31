@@ -2,6 +2,7 @@
 import { gunzip, gzip } from "../zlib/mod.ts";
 /** slow */
 // import { gzip, gunzip } from "./gzip.ts";
+import { readAll, writeAll } from "../deps.ts";
 
 export async function gzipFile(src: string, dest: string): Promise<void> {
   const reader = await Deno.open(src, {
@@ -12,7 +13,7 @@ export async function gzipFile(src: string, dest: string): Promise<void> {
     create: true,
     truncate: true,
   });
-  await Deno.writeAll(writer, gzip(await Deno.readAll(reader), undefined));
+  await writeAll(writer, gzip(await readAll(reader), undefined));
   writer.close();
   reader.close();
 }
@@ -26,5 +27,5 @@ export async function gunzipFile(src: string, dest: string): Promise<void> {
     create: true,
     truncate: true,
   });
-  await Deno.writeAll(writer, gunzip(await Deno.readAll(reader)));
+  await writeAll(writer, gunzip(await readAll(reader)));
 }

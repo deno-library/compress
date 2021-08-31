@@ -1,5 +1,5 @@
 // from https://github.com/nodeca/pako
-import * as zlib_deflate from "./zlib/deflate.ts";
+import * as zlibDeflate from "./zlib/deflate.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { CODE, message as msg } from "./zlib/messages.ts";
 import ZStream from "./zlib/zstream.ts";
@@ -16,15 +16,15 @@ export interface DeflateOptions {
   raw?: boolean;
   gzip?: boolean;
   dictionary?: Uint8Array;
-  header?: zlib_deflate.Header;
+  header?: zlibDeflate.Header;
 }
 
 export class Deflate {
   err: STATUS = 0; // error code, if happens (0 = Z_OK)
-  msg: string = ""; // error message
-  ended: boolean = false; // used to avoid multiple onEnd() calls
+  msg = ""; // error message
+  ended = false; // used to avoid multiple onEnd() calls
   strm: ZStream;
-  _dict_set: boolean = false;
+  _dict_set = false;
   options: any;
 
   constructor(options: DeflateOptions = {}) {
@@ -49,7 +49,7 @@ export class Deflate {
     this.strm = new ZStream();
     this.strm.avail_out = 0;
 
-    let status = zlib_deflate.deflateInit2(
+    let status = zlibDeflate.deflateInit2(
       this.strm,
       opt.level,
       opt.method,
@@ -63,11 +63,11 @@ export class Deflate {
     }
 
     if (opt.header) {
-      zlib_deflate.deflateSetHeader(this.strm, opt.header);
+      zlibDeflate.deflateSetHeader(this.strm, opt.header);
     }
 
     if (opt.dictionary) {
-      status = zlib_deflate.deflateSetDictionary(this.strm, opt.dictionary);
+      status = zlibDeflate.deflateSetDictionary(this.strm, opt.dictionary);
 
       if (status !== STATUS.Z_OK) {
         throw new Error(msg[status]);
@@ -101,7 +101,7 @@ export class Deflate {
         strm.next_out = 0;
         strm.avail_out = chunkSize;
       }
-      status = zlib_deflate.deflate(strm, _mode); /* no bad return value */
+      status = zlibDeflate.deflate(strm, _mode); /* no bad return value */
 
       if (status !== STATUS.Z_STREAM_END && status !== STATUS.Z_OK) {
         this.ended = true;
@@ -121,7 +121,7 @@ export class Deflate {
 
     // Finalize on the last chunk.
     if (_mode === STATUS.Z_FINISH) {
-      status = zlib_deflate.deflateEnd(this.strm);
+      status = zlibDeflate.deflateEnd(this.strm);
       this.ended = true;
       if (status !== STATUS.Z_OK) throw new Error(this.strm.msg);
     }

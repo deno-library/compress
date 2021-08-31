@@ -1,4 +1,4 @@
-import { EventEmitter } from "../deps.ts";
+import { copy, EventEmitter } from "../deps.ts";
 import GzipWriter from "./writer_gzip.ts";
 import GunzipWriter from "./writer_gunzip.ts";
 
@@ -28,7 +28,7 @@ export class GzipStream extends EventEmitter {
     });
 
     /** 1: use Deno.copy */
-    await Deno.copy(reader, writer, {
+    await copy(reader, writer, {
       bufSize: 1024 * 1024,
     });
 
@@ -67,7 +67,7 @@ export class GzipStream extends EventEmitter {
       this.emit("progress", progress);
     });
     // write
-    await Deno.copy(reader, writer, {
+    await copy(reader, writer, {
       bufSize: 1024 * 1024,
     });
     // close

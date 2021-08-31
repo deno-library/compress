@@ -1,6 +1,6 @@
 // from https://github.com/nodeca/pako
 import { concatUint8Array } from "../utils/uint8.ts";
-import * as zlib_inflate from "./zlib/inflate.ts";
+import * as zlibInflate from "./zlib/inflate.ts";
 import STATUS from "./zlib/status.ts";
 import { CODE, message as msg } from "./zlib/messages.ts";
 import ZStream from "./zlib/zstream.ts";
@@ -16,8 +16,8 @@ export interface InflateOptions {
 
 export class Inflate {
   err: STATUS = 0; // error code, if happens (0 = Z_OK)
-  msg: string = ""; // error message
-  ended: boolean = false; // used to avoid multiple onEnd() calls
+  msg = ""; // error message
+  ended = false; // used to avoid multiple onEnd() calls
   strm: ZStream;
   options: any;
   header: GZheader;
@@ -60,7 +60,7 @@ export class Inflate {
     this.strm = new ZStream();
     this.strm.avail_out = 0;
 
-    var status = zlib_inflate.inflateInit2(
+    var status = zlibInflate.inflateInit2(
       this.strm,
       opt.windowBits,
     );
@@ -70,12 +70,12 @@ export class Inflate {
     }
 
     this.header = new GZheader();
-    zlib_inflate.inflateGetHeader(this.strm, this.header);
+    zlibInflate.inflateGetHeader(this.strm, this.header);
 
     // Setup dictionary
     if (opt.dictionary) {
       if (opt.raw) { //In raw mode we need to set the dictionary early
-        status = zlib_inflate.inflateSetDictionary(this.strm, opt.dictionary);
+        status = zlibInflate.inflateSetDictionary(this.strm, opt.dictionary);
         if (status !== STATUS.Z_OK) {
           throw new Error(msg[status as CODE]);
         }
@@ -113,13 +113,13 @@ export class Inflate {
         strm.avail_out = chunkSize;
       }
 
-      status = zlib_inflate.inflate(
+      status = zlibInflate.inflate(
         strm,
         STATUS.Z_NO_FLUSH,
       ); /* no bad return value */
 
       if (status === STATUS.Z_NEED_DICT && dictionary) {
-        status = zlib_inflate.inflateSetDictionary(this.strm, dictionary);
+        status = zlibInflate.inflateSetDictionary(this.strm, dictionary);
       }
 
       if (status === STATUS.Z_BUF_ERROR && allowBufError === true) {
@@ -163,7 +163,7 @@ export class Inflate {
 
     // Finalize on the last chunk.
     if (_mode === STATUS.Z_FINISH) {
-      status = zlib_inflate.inflateEnd(this.strm);
+      status = zlibInflate.inflateEnd(this.strm);
       this.ended = true;
       if (status !== STATUS.Z_OK) throw new Error(this.strm.msg);
     }

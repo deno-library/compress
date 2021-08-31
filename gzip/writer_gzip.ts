@@ -1,4 +1,4 @@
-import { Crc32Stream, EventEmitter } from "../deps.ts";
+import { Crc32Stream, EventEmitter, writeAll } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { getHeader, putLong } from "./gzip.ts";
 import { Deflate } from "../zlib/mod.ts";
@@ -51,13 +51,13 @@ export default class Writer extends EventEmitter implements Deno.Writer {
     if (readed < 16384) {
       const buf = concatUint8Array(this.chuncks);
       const compressed = this.deflate.push(buf, true);
-      await Deno.writeAll(this.writer, compressed);
+      await writeAll(this.writer, compressed);
       const tail = this.getTail();
       await Deno.write(this.writer.rid, tail);
     } else if (this.chuncksBytes >= this.onceSize) {
       const buf = concatUint8Array(this.chuncks);
       const compressed = this.deflate.push(buf, false);
-      await Deno.writeAll(this.writer, compressed);
+      await writeAll(this.writer, compressed);
       this.chuncks.length = 0;
       this.chuncksBytes = 0;
       this.emit("bytesWritten", this.bytesWritten);
