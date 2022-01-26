@@ -8,19 +8,19 @@ Utilities to compress and uncompress for Deno!
 * [x] `tgz`
 * [ ] `zip`
 
-## Usage
+# Usage
 
 If you want to read and write files, you need the following [permissions](https://deno.land/manual/getting_started/permissions):
 
 > --allow-read --allow-write
 
-### `tar`
+## `tar`
 
 For tar (un)compression, Deno v1.2.2+ is required. The reason can be seen here:
 
 > <https://github.com/denoland/deno/pull/6905>
 
-#### Definition
+### Definition
 
 ```ts
 import { tar } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -33,7 +33,7 @@ tar.compress(src, dest, options?: compressInterface): Promise<void>;
 tar.uncompress(src, dest): Promise<void>;
 ```
 
-#### Example
+### Example
 
 ```ts
 import { tar } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -47,7 +47,7 @@ await tar.compress("./test.txt", "./test.tar");
 await tar.uncompress("./test.tar", "./dest");
 ```
 
-### `deflate`
+## `deflate`
 
 This library contains a pure TypeScript implementation of 
 [deflate](https://en.wikipedia.org/wiki/Deflate), and you can 
@@ -73,9 +73,9 @@ const compressed = deflateRaw(bytes);
 const decompressed = inflateRaw(compressed);
 ```
 
-### `gzip`
+## `gzip`
 
-#### Definition
+### Definition
 
 ```ts
 interface GzipOptions {
@@ -94,7 +94,7 @@ class GzipStream {
 }
 ```
 
-#### Example
+### Example
 
 Let's compress and uncompress a file. (`gzip` only supports compressing 
 and decompressing a single file.)
@@ -144,9 +144,9 @@ const compressed = gzip(bytes);
 const decompressed = gunzip(compressed);
 ```
 
-### `tgz`
+## `tgz`
 
-#### Definition
+### Definition
 
 ```ts
 import { tgz } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -159,7 +159,7 @@ tgz.compress(src, dest, options?: compressInterface): Promise<void>;
 tgz.uncompress(src, dest): Promise<void>;
 ```
 
-#### Example
+### Example
 
 ```ts
 import { tgz } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -173,11 +173,11 @@ await tgz.compress("./test.txt", "./test.tar.gz");
 await tgz.uncompress("./test.tar.gz", "./dest");
 ```
 
-### `zip`
+## `zip`
 
 *Not yet implemented*
 
-#### Definition
+### Definition
 
 ```ts
 import { zip } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -188,7 +188,7 @@ zip.compress(src, dest, options?: compressInterface): Promise<void>;
 zip.uncompress(src, dest): Promise<void>;
 ```
 
-## test
+# test
 
 ```ts
 deno test --allow-read --allow-write
