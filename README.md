@@ -10,7 +10,7 @@ Utilities to compress and uncompress for Deno!
 
 ## Usage
 
-If you want to read and write files, you need the following permissions:
+If you want to read and write files, you need the following [permissions](https://deno.land/manual/getting_started/permissions):
 
 > --allow-read --allow-write
 
