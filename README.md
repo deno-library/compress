@@ -47,7 +47,7 @@ await tar.compress("./test.txt", "./test.tar");
 await tar.uncompress("./test.tar", "./dest");
 ```
 
-### Deflate
+### `deflate`
 
 This library contains a pure TypeScript implementation of 
 [deflate](https://en.wikipedia.org/wiki/Deflate), and you can 
