@@ -1,26 +1,26 @@
 # compress
 
-compress and uncompress for Deno
+Utilities to compress and uncompress for Deno!
 
-* [x] tar
-* [x] deflate
-* [x] gzip
-* [x] tgz
-* [ ] zip
+* [x] `tar`
+* [x] `deflate`
+* [x] `gzip`
+* [x] `tgz`
+* [ ] `zip`
 
-## Useage
+# Usage
 
-If you read and write files, need the following permissions
+If you want to read and write files, you need the following [permissions](https://deno.land/manual/getting_started/permissions):
 
 > --allow-read --allow-write
 
-### tar
+## `tar`
 
-Deno v1.2.2+ required. The reason can be seen here:
+For tar (un)compression, Deno v1.2.2+ is required. The reason can be seen here:
 
 > <https://github.com/denoland/deno/pull/6905>
 
-#### definition
+### Definition
 
 ```ts
 import { tar } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -33,7 +33,7 @@ tar.compress(src, dest, options?: compressInterface): Promise<void>;
 tar.uncompress(src, dest): Promise<void>;
 ```
 
-#### example
+### Example
 
 ```ts
 import { tar } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -47,9 +47,11 @@ await tar.compress("./test.txt", "./test.tar");
 await tar.uncompress("./test.tar", "./dest");
 ```
 
-### deflate
+## `deflate`
 
-This is a pure TypeScript implementation of deflate.
+This library contains a pure TypeScript implementation of 
+[deflate](https://en.wikipedia.org/wiki/Deflate), and you can 
+use deflate on its own:
 
 ```ts
 import {
@@ -71,9 +73,9 @@ const compressed = deflateRaw(bytes);
 const decompressed = inflateRaw(compressed);
 ```
 
-### gzip
+## `gzip`
 
-#### definition
+### Definition
 
 ```ts
 interface GzipOptions {
@@ -92,13 +94,13 @@ class GzipStream {
 }
 ```
 
-#### example
+### Example
 
-compress and uncompress file, only supports compressing and decompressing a
-single file
+Let's compress and uncompress a file. (`gzip` only supports compressing 
+and decompressing a single file.)
 
 **stream mode**\
-used to read and write large files
+Useful for reading and writing large files.
 
 ```ts
 import { GzipStream } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -113,7 +115,7 @@ await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 ```
 
 **no stream mode**\
-loading all data into memory, so can't get `progress` event
+(This is loading all data into memory, so we can't get a `progress` event.)
 
 ```ts
 import {
@@ -126,9 +128,9 @@ await gzipFile("./deno.txt", "./deno.txt.gz");
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
 
-**gzip/gunzip string or bytes**
+**`gzip` a string or a byte array**
 
-> This is a pure TypeScript implementation. Almost as fast as Rust
+> This is a pure TypeScript implementation, almost as fast as a Rust
 > implementation.
 
 ```ts
@@ -142,9 +144,9 @@ const compressed = gzip(bytes);
 const decompressed = gunzip(compressed);
 ```
 
-### tgz
+## `tgz`
 
-#### definition
+### Definition
 
 ```ts
 import { tgz } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -157,7 +159,7 @@ tgz.compress(src, dest, options?: compressInterface): Promise<void>;
 tgz.uncompress(src, dest): Promise<void>;
 ```
 
-#### example
+### Example
 
 ```ts
 import { tgz } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -171,11 +173,11 @@ await tgz.compress("./test.txt", "./test.tar.gz");
 await tgz.uncompress("./test.tar.gz", "./dest");
 ```
 
-### zip
+## `zip`
 
-Not implemented
+*Not yet implemented*
 
-#### definition
+### Definition
 
 ```ts
 import { zip } from "https://deno.land/x/compress@v0.4.1/mod.ts";
@@ -186,7 +188,7 @@ zip.compress(src, dest, options?: compressInterface): Promise<void>;
 zip.uncompress(src, dest): Promise<void>;
 ```
 
-## test
+# test
 
 ```ts
 deno test --allow-read --allow-write
