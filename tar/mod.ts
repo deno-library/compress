@@ -1,11 +1,16 @@
 import { Buffer, copy, ensureDir, path, Tar, Untar } from "../deps.ts";
-import type { compressInterface } from "../interface.ts";
+import type { compressInterface, uncompressInterface } from "../interface.ts";
 
-export async function uncompress(src: string, dest: string): Promise<void> {
+export async function uncompress(
+  src: string,
+  dest: string,
+  options?: uncompressInterface,
+): Promise<void> {
   const reader = await Deno.open(src, { read: true });
   const untar = new Untar(reader);
   for await (const entry of untar) {
     const filePath = path.resolve(dest, entry.fileName);
+    if (options?.debug) console.log(filePath);
     if (entry.type === "directory") {
       await ensureDir(filePath);
       continue;
@@ -33,6 +38,7 @@ export async function compress(
       contentSize: stat.size,
       mtime: (stat?.mtime ?? new Date()).valueOf() / 1000,
     });
+    if (options?.debug) console.log(path.resolve(src));
   } else {
     const appendFolder = async (folder: string, prefix?: string) => {
       let nowLoopList: string[][] = [[folder, prefix || ""]];
@@ -43,8 +49,8 @@ export async function compress(
           for await (const entry of Deno.readDir(folder)) {
             const { isDirectory, name } = entry;
             const fileName = prefix ? `${prefix}/${name}` : name;
-
             const filePath = path.resolve(folder, name);
+            if (options?.debug) console.log(path.resolve(src));
             const stat = await Deno.stat(filePath);
             if (isDirectory) {
               await tar.append(
@@ -84,6 +90,7 @@ export async function compress(
           // reader: new Deno.Buffer(),
         },
       );
+      if (options?.debug) console.log(path.resolve(src));
       await appendFolder(src, folderName);
     }
   }
@@ -92,7 +99,7 @@ export async function compress(
   writer.close();
 }
 
-// Recursive way 
+// Recursive way
 // export async function compress(
 //   src: string,
 //   dest: string,

@@ -27,10 +27,14 @@ import { tar } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // or only import tar
 // import { tar } from "https://deno.land/x/compress@v0.4.2/tar/mod.ts";
 export interface compressInterface {
-  excludeSrc?: boolean; // exclude src directory, default: include src directory
+  excludeSrc?: boolean;      // does not contain the src directory
+  debug?: boolean;           // list the files and folders
+}
+export interface uncompressInterface {
+  debug?: boolean;           // list the files and folders
 }
 tar.compress(src, dest, options?: compressInterface): Promise<void>;
-tar.uncompress(src, dest): Promise<void>;
+tar.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ```
 
 ### Example
@@ -152,11 +156,15 @@ const decompressed = gunzip(compressed);
 import { tgz } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // or only import tgz
 // import { tgz } from "https://deno.land/x/compress@v0.4.2/tgz/mod.ts";
-interface compressInterface {
-  excludeSrc?: boolean; // exclude src directory, default: include src directory
+export interface compressInterface {
+  excludeSrc?: boolean;      // does not contain the src directory
+  debug?: boolean;           // list the files and folders
+}
+export interface uncompressInterface {
+  debug?: boolean;           // list the files and folders
 }
 tgz.compress(src, dest, options?: compressInterface): Promise<void>;
-tgz.uncompress(src, dest): Promise<void>;
+tgz.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ```
 
 ### Example
@@ -181,11 +189,15 @@ await tgz.uncompress("./test.tar.gz", "./dest");
 
 ```ts
 import { zip } from "https://deno.land/x/compress@v0.4.2/mod.ts";
-interface compressInterface {
-  excludeSrc?: boolean; // exclude src directory, default: include src directory
+export interface compressInterface {
+  excludeSrc?: boolean;      // does not contain the src directory
+  debug?: boolean;           // list the files and folders
+}
+export interface uncompressInterface {
+  debug?: boolean;           // list the files and folders
 }
 zip.compress(src, dest, options?: compressInterface): Promise<void>;
-zip.uncompress(src, dest): Promise<void>;
+zip.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ```
 
 # test
