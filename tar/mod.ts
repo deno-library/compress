@@ -50,7 +50,7 @@ export async function compress(
             const { isDirectory, name } = entry;
             const fileName = prefix ? `${prefix}/${name}` : name;
             const filePath = path.resolve(folder, name);
-            if (options?.debug) console.log(path.resolve(src));
+            if (options?.debug) console.log(path.resolve(filePath));
             const stat = await Deno.stat(filePath);
             if (isDirectory) {
               await tar.append(
