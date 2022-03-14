@@ -23,9 +23,9 @@ For tar (un)compression, Deno v1.2.2+ is required. The reason can be seen here:
 ### Definition
 
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.4.1/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // or only import tar
-// import { tar } from "https://deno.land/x/compress@v0.4.1/tar/mod.ts";
+// import { tar } from "https://deno.land/x/compress@v0.4.2/tar/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
@@ -36,7 +36,7 @@ tar.uncompress(src, dest): Promise<void>;
 ### Example
 
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.4.1/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // compress folder
 await tar.compress("./test", "./test.tar");
 // compress folder, exclude src directory
@@ -60,9 +60,9 @@ import {
   deflateRaw,
   inflate,
   inflateRaw,
-} from "https://deno.land/x/compress@v0.4.1/mod.ts";
+} from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // or only import deflate, inflate, deflateRaw, inflateRaw
-// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.4.1/zlib/mod.ts";
+// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.4.2/zlib/mod.ts";
 const str = "hello world!";
 const bytes = new TextEncoder().encode(str);
 // with zlib header
@@ -103,9 +103,9 @@ and decompressing a single file.)
 Useful for reading and writing large files.
 
 ```ts
-import { GzipStream } from "https://deno.land/x/compress@v0.4.1/mod.ts";
+import { GzipStream } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // or only import GzipStream
-// import { GzipStream } from "https://deno.land/x/compress@v0.4.1/gzip/mod.ts";
+// import { GzipStream } from "https://deno.land/x/compress@v0.4.2/gzip/mod.ts";
 const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
@@ -121,9 +121,9 @@ await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 import {
   gunzipFile,
   gzipFile,
-} from "https://deno.land/x/compress@v0.4.1/mod.ts";
+} from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // or only import gzipFile, gunzipFile
-// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.4.1/gzip/mod.ts";
+// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.4.2/gzip/mod.ts";
 await gzipFile("./deno.txt", "./deno.txt.gz");
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
@@ -134,9 +134,9 @@ await gunzipFile("./deno.txt.gz", "./deno.txt");
 > implementation.
 
 ```ts
-import { gunzip, gzip } from "https://deno.land/x/compress@v0.4.1/mod.ts";
+import { gunzip, gzip } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // or only import gzip, gunzip
-// import { gzip, gunzip } from "https://deno.land/x/compress@v0.4.1/zlib/mod.ts";
+// import { gzip, gunzip } from "https://deno.land/x/compress@v0.4.2/zlib/mod.ts";
 // gzip
 const bytes = new TextEncoder().encode("hello");
 const compressed = gzip(bytes);
@@ -149,9 +149,9 @@ const decompressed = gunzip(compressed);
 ### Definition
 
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.4.1/mod.ts";
+import { tgz } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // or only import tgz
-// import { tgz } from "https://deno.land/x/compress@v0.4.1/tgz/mod.ts";
+// import { tgz } from "https://deno.land/x/compress@v0.4.2/tgz/mod.ts";
 interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
@@ -162,7 +162,7 @@ tgz.uncompress(src, dest): Promise<void>;
 ### Example
 
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.4.1/mod.ts";
+import { tgz } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 // compress folder
 await tgz.compress("./test", "./test.tar.gz");
 // compress folder, exclude src directory
@@ -180,7 +180,7 @@ await tgz.uncompress("./test.tar.gz", "./dest");
 ### Definition
 
 ```ts
-import { zip } from "https://deno.land/x/compress@v0.4.1/mod.ts";
+import { zip } from "https://deno.land/x/compress@v0.4.2/mod.ts";
 interface compressInterface {
   excludeSrc?: boolean; // exclude src directory, default: include src directory
 }
