@@ -13,6 +13,7 @@ Deno.test("tar.compress file", async () => {
     assertEquals(stat.size, 2048);
     await Deno.remove(dest);
   } catch (error) {
+    console.error(error)
     assert(false);
   }
 });
@@ -24,11 +25,16 @@ Deno.test("tar.compress folder", async () => {
     await tar.compress(src, dest);
     const stat = await Deno.lstat(dest);
     /**
-     * 2560 = 512 (header) + 0 (content) + 512 (header) + 512 (content) + 1024 (footer)
+     * 4096 = 512 (header) + 0 (content) +  // tar folder
+     * 512 (header) + 512 (content) +       // tar.txt
+     * 512 (header) + 0 (content) +         // subdir folder
+     * 512 (header) + 512 (content) +       // subfile.txt
+     * 1024 (footer)                        // footer
      */
-    assertEquals(stat.size, 2560);
+    assertEquals(stat.size, 4096);
     await Deno.remove(dest);
   } catch (error) {
+    console.error(error)
     assert(false);
   }
 });
@@ -48,6 +54,7 @@ Deno.test("tar.uncompress", async () => {
     assertEquals(content, landTxtContent);
     await Deno.remove(dest, { recursive: true });
   } catch (error) {
+    console.error(error)
     assert(false);
   }
 });
