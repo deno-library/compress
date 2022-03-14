@@ -1,9 +1,9 @@
 import * as tar from "../tar/mod.ts";
 import { gunzipFile, gzipFile } from "../gzip/gzip_file.ts";
-import type { compressInterface } from "../interface.ts";
+import type { compressInterface, uncompressInterface } from "../interface.ts";
 import { path } from "../deps.ts";
 
-export async function uncompress(src: string, dest: string): Promise<void> {
+export async function uncompress(src: string, dest: string, options?: uncompressInterface): Promise<void> {
   const filename = path.basename(src);
   const extname = path.extname(filename);
   const tarFilename = extname === ".tgz"
@@ -12,7 +12,7 @@ export async function uncompress(src: string, dest: string): Promise<void> {
   const tmpDir = await Deno.makeTempDir();
   const tmpPath = path.join(tmpDir, tarFilename);
   await gunzipFile(src, tmpPath);
-  await tar.uncompress(tmpPath, dest);
+  await tar.uncompress(tmpPath, dest, options);
   await Deno.remove(tmpDir, { recursive: true });
 }
 
