@@ -1,4 +1,4 @@
-export { Tar, Untar } from "https://deno.land/std@0.129.0/archive/tar.ts";
+export { Tar, Untar } from "https://deno.land/std@0.213.0/archive/mod.ts";
 export { ensureFile } from "https://deno.land/std@0.129.0/fs/ensure_file.ts";
 export { ensureDir } from "https://deno.land/std@0.129.0/fs/ensure_dir.ts";
 export { EventEmitter } from "https://deno.land/std@0.129.0/node/events.ts";
