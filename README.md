@@ -6,7 +6,11 @@ Utilities to compress and uncompress for Deno!
 * [x] `deflate`
 * [x] `gzip`
 * [x] `tgz`
-* [ ] `zip`
+* [x] `zip`
+
+## Changelog
+
+[changelog](./changelog.md)
 
 # Usage
 
@@ -23,9 +27,9 @@ For tar (un)compression, Deno v1.2.2+ is required. The reason can be seen here:
 ### Definition
 
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.4.7/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.4.8/mod.ts";
 // or only import tar
-// import { tar } from "https://deno.land/x/compress@v0.4.7/tar/mod.ts";
+// import { tar } from "https://deno.land/x/compress@v0.4.8/tar/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean;      // does not contain the src directory
   debug?: boolean;           // list the files and folders
@@ -40,7 +44,7 @@ tar.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ### Example
 
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.4.7/mod.ts";
+import { tar } from "https://deno.land/x/compress@v0.4.8/mod.ts";
 // compress folder
 await tar.compress("./test", "./test.tar");
 // compress folder, exclude src directory
@@ -64,9 +68,9 @@ import {
   deflateRaw,
   inflate,
   inflateRaw,
-} from "https://deno.land/x/compress@v0.4.7/mod.ts";
+} from "https://deno.land/x/compress@v0.4.8/mod.ts";
 // or only import deflate, inflate, deflateRaw, inflateRaw
-// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.4.7/zlib/mod.ts";
+// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.4.8/zlib/mod.ts";
 const str = "hello world!";
 const bytes = new TextEncoder().encode(str);
 // with zlib header
@@ -107,9 +111,9 @@ and decompressing a single file.)
 Useful for reading and writing large files.
 
 ```ts
-import { GzipStream } from "https://deno.land/x/compress@v0.4.7/mod.ts";
+import { GzipStream } from "https://deno.land/x/compress@v0.4.8/mod.ts";
 // or only import GzipStream
-// import { GzipStream } from "https://deno.land/x/compress@v0.4.7/gzip/mod.ts";
+// import { GzipStream } from "https://deno.land/x/compress@v0.4.8/gzip/mod.ts";
 const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
@@ -125,9 +129,9 @@ await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 import {
   gunzipFile,
   gzipFile,
-} from "https://deno.land/x/compress@v0.4.7/mod.ts";
+} from "https://deno.land/x/compress@v0.4.8/mod.ts";
 // or only import gzipFile, gunzipFile
-// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.4.7/gzip/mod.ts";
+// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.4.8/gzip/mod.ts";
 await gzipFile("./deno.txt", "./deno.txt.gz");
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
@@ -138,9 +142,9 @@ await gunzipFile("./deno.txt.gz", "./deno.txt");
 > implementation.
 
 ```ts
-import { gunzip, gzip } from "https://deno.land/x/compress@v0.4.7/mod.ts";
+import { gunzip, gzip } from "https://deno.land/x/compress@v0.4.8/mod.ts";
 // or only import gzip, gunzip
-// import { gzip, gunzip } from "https://deno.land/x/compress@v0.4.7/zlib/mod.ts";
+// import { gzip, gunzip } from "https://deno.land/x/compress@v0.4.8/zlib/mod.ts";
 // gzip
 const bytes = new TextEncoder().encode("hello");
 const compressed = gzip(bytes);
@@ -153,9 +157,9 @@ const decompressed = gunzip(compressed);
 ### Definition
 
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.4.7/mod.ts";
+import { tgz } from "https://deno.land/x/compress@v0.4.8/mod.ts";
 // or only import tgz
-// import { tgz } from "https://deno.land/x/compress@v0.4.7/tgz/mod.ts";
+// import { tgz } from "https://deno.land/x/compress@v0.4.8/tgz/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean;      // does not contain the src directory
   debug?: boolean;           // list the files and folders
@@ -170,7 +174,7 @@ tgz.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ### Example
 
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.4.7/mod.ts";
+import { tgz } from "https://deno.land/x/compress@v0.4.8/mod.ts";
 // compress folder
 await tgz.compress("./test", "./test.tar.gz");
 // compress folder, exclude src directory
@@ -183,21 +187,58 @@ await tgz.uncompress("./test.tar.gz", "./dest");
 
 ## `zip`
 
-*Not yet implemented*
+> code from `https://github.com/fakoua/deno-zip`
 
 ### Definition
 
 ```ts
-import { zip } from "https://deno.land/x/compress@v0.4.7/mod.ts";
+import { zip } from "https://deno.land/x/compress@v0.4.8/mod.ts";
+// or only import zip
+// import { zip } from "https://deno.land/x/compress@v0.4.8/zip/mod.ts";
+
 export interface compressInterface {
-  excludeSrc?: boolean;      // does not contain the src directory
-  debug?: boolean;           // list the files and folders
+  // Indicates whether to overwrite the existing archive file
+  overwrite?: boolean;
+  // An array of flags to customize the compression process
+  flags?: string[];
 }
+
 export interface uncompressInterface {
-  debug?: boolean;           // list the files and folders
+  // Whether to overwrite existing files
+  overwrite?: boolean;
+  // Whether to include the file name in the destination path
+  includeFileName?: boolean;
 }
-zip.compress(src, dest, options?: compressInterface): Promise<void>;
-zip.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
+
+zip.compress(src, dest, options?: compressInterface): Promise<boolean>;
+zip.uncompress(src, dest, options?: uncompressInterface): Promise<string | false>;
+```
+
+### Example
+
+```ts
+// zip From File
+console.log(await zip.compress("./myfiles")); //=> boolean
+console.log(await zip.compress("./mypicter.png", "new-dir/mypicter.zip")); //=> boolean
+console.log(
+  await zip.compress(["./mypicters", "./textpalne.txt"], "compressed.zip", {
+    overwrite: true,
+  })
+); //=> boolean
+
+// unZip From File
+console.log(await zip.uncompress("myfile.zip")); //=> ./
+console.log(await zip.uncompress("myfile.zip", "new-dir")); //=> new-dir
+console.log(
+  await zip.uncompress("myfile.zip", null, {
+    includeFileName: true,
+  })
+); //=> myfile
+console.log(
+  await zip.uncompress("myfile.zip", "new-dir", {
+    includeFileName: true,
+  })
+); //=> new-dir\myfile
 ```
 
 # test
