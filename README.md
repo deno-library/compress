@@ -2,11 +2,11 @@
 
 Utilities to compress and uncompress for Deno!
 
-* [x] `tar`
-* [x] `deflate`
-* [x] `gzip`
-* [x] `tgz`
-* [x] `zip`
+- [x] `tar`
+- [x] `deflate`
+- [x] `gzip`
+- [x] `tgz`
+- [x] `zip`
 
 ## Changelog
 
@@ -27,9 +27,14 @@ For tar (un)compression, Deno v1.2.2+ is required. The reason can be seen here:
 ### Definition
 
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.4.8/mod.ts";
+// JSR
+import { tar } from "jsr:@deno-library/compress";
+// or
+// import { tar } from "jsr:@deno-library/compress@0.4.9";
+// or
+// import { tar } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // or only import tar
-// import { tar } from "https://deno.land/x/compress@v0.4.8/tar/mod.ts";
+// import { tar } from "https://deno.land/x/compress@v0.4.9/tar/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean;      // does not contain the src directory
   debug?: boolean;           // list the files and folders
@@ -44,7 +49,10 @@ tar.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ### Example
 
 ```ts
-import { tar } from "https://deno.land/x/compress@v0.4.8/mod.ts";
+// JSR
+import { tar } from "jsr:@deno-library/compress";
+// or
+// import { tar } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // compress folder
 await tar.compress("./test", "./test.tar");
 // compress folder, exclude src directory
@@ -57,20 +65,23 @@ await tar.uncompress("./test.tar", "./dest");
 
 ## `deflate`
 
-This library contains a pure TypeScript implementation of 
-[deflate](https://en.wikipedia.org/wiki/Deflate), and you can 
+This library contains a pure TypeScript implementation of
+[deflate](https://en.wikipedia.org/wiki/Deflate), and you can
 use deflate on its own:
 
 ```ts
+// JSR
 import {
   deflate,
   /** Compress data using deflate, and do not append a zlib header. */
   deflateRaw,
   inflate,
   inflateRaw,
-} from "https://deno.land/x/compress@v0.4.8/mod.ts";
+} from "jsr:@deno-library/compress";
+// or
+// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // or only import deflate, inflate, deflateRaw, inflateRaw
-// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.4.8/zlib/mod.ts";
+// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.4.9/zlib/mod.ts";
 const str = "hello world!";
 const bytes = new TextEncoder().encode(str);
 // with zlib header
@@ -104,16 +115,18 @@ class GzipStream {
 
 ### Example
 
-Let's compress and uncompress a file. (`gzip` only supports compressing 
+Let's compress and uncompress a file. (`gzip` only supports compressing
 and decompressing a single file.)
 
 **stream mode**\
 Useful for reading and writing large files.
 
 ```ts
-import { GzipStream } from "https://deno.land/x/compress@v0.4.8/mod.ts";
+import { GzipStream } from "jsr:@deno-library/compress";
+// or
+// import { GzipStream } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // or only import GzipStream
-// import { GzipStream } from "https://deno.land/x/compress@v0.4.8/gzip/mod.ts";
+// import { GzipStream } from "https://deno.land/x/compress@v0.4.9/gzip/mod.ts";
 const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
@@ -126,12 +139,11 @@ await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 (This is loading all data into memory, so we can't get a `progress` event.)
 
 ```ts
-import {
-  gunzipFile,
-  gzipFile,
-} from "https://deno.land/x/compress@v0.4.8/mod.ts";
+import { gunzipFile, gzipFile } from "jsr:@deno-library/compress";
+// or
+// import { gunzipFile, gzipFile } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // or only import gzipFile, gunzipFile
-// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.4.8/gzip/mod.ts";
+// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.4.9/gzip/mod.ts";
 await gzipFile("./deno.txt", "./deno.txt.gz");
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
@@ -142,9 +154,11 @@ await gunzipFile("./deno.txt.gz", "./deno.txt");
 > implementation.
 
 ```ts
-import { gunzip, gzip } from "https://deno.land/x/compress@v0.4.8/mod.ts";
+import { gunzip, gzip } from "jsr:@deno-library/compress";
+// or
+// import { gunzip, gzip } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // or only import gzip, gunzip
-// import { gzip, gunzip } from "https://deno.land/x/compress@v0.4.8/zlib/mod.ts";
+// import { gzip, gunzip } from "https://deno.land/x/compress@v0.4.9/zlib/mod.ts";
 // gzip
 const bytes = new TextEncoder().encode("hello");
 const compressed = gzip(bytes);
@@ -157,9 +171,11 @@ const decompressed = gunzip(compressed);
 ### Definition
 
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.4.8/mod.ts";
+import { tgz } from "jsr:@deno-library/compress";
+// or
+// import { tgz } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // or only import tgz
-// import { tgz } from "https://deno.land/x/compress@v0.4.8/tgz/mod.ts";
+// import { tgz } from "https://deno.land/x/compress@v0.4.9/tgz/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean;      // does not contain the src directory
   debug?: boolean;           // list the files and folders
@@ -174,7 +190,9 @@ tgz.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ### Example
 
 ```ts
-import { tgz } from "https://deno.land/x/compress@v0.4.8/mod.ts";
+import { tgz } from "jsr:@deno-library/compress";
+// or
+// import { tgz } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // compress folder
 await tgz.compress("./test", "./test.tar.gz");
 // compress folder, exclude src directory
@@ -192,9 +210,11 @@ await tgz.uncompress("./test.tar.gz", "./dest");
 ### Definition
 
 ```ts
-import { zip } from "https://deno.land/x/compress@v0.4.8/mod.ts";
+import { zip } from "jsr:@deno-library/compress";
+// or
+// import { zip } from "https://deno.land/x/compress@v0.4.9/mod.ts";
 // or only import zip
-// import { zip } from "https://deno.land/x/compress@v0.4.8/zip/mod.ts";
+// import { zip } from "https://deno.land/x/compress@v0.4.9/zip/mod.ts";
 
 export interface compressInterface {
   // Indicates whether to overwrite the existing archive file
