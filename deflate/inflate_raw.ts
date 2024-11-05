@@ -250,23 +250,21 @@ class HuftBuild {
 	   so that no bits beyond that code are fetched when that code is
 	   decoded. */
     let a; // counter for codes of length k
-    let c = [];
-    let el; // length of EOB code (value 256)
+    const c = [];
     let f; // i repeats in table every f entries
-    let g; // maximum code length
     let h; // table level
     let i; // counter, current code
     let j; // counter
     let k; // number of bits in current code
-    let lx = [];
+    const lx = [];
     let p; // pointer into c[], b[], or v[]
     let pidx; // index of p
     let q; // (HuftNode) points to current table
-    let r = new HuftNode(); // table entry for structure assignment
-    let u: null[] | HuftNode[][] = [];
-    let v = [];
+    const r = new HuftNode(); // table entry for structure assignment
+    const u: null[] | HuftNode[][] = [];
+    const v = [];
     let w;
-    let x = [];
+    const x = [];
     let xp; // pointer into x or c
     let y; // number of dummy codes added
     let z; // number of entries in current table
@@ -297,7 +295,8 @@ class HuftBuild {
     }
 
     // Generate counts for each bit length
-    el = n > 256 ? b[256] : this.BMAX; // set length of EOB code, if any
+    // length of EOB code (value 256)
+    const el = n > 256 ? b[256] : this.BMAX; // set length of EOB code, if any
     p = b;
     pidx = 0;
     i = n;
@@ -327,7 +326,7 @@ class HuftBuild {
         break;
       }
     }
-    g = i; // maximum code length
+    const g = i; // maximum code length
     if (mm > i) {
       mm = i;
     }
@@ -639,7 +638,7 @@ function inflate_fixed(buff: number[], off: number, size: number) {
   // if first time, set up tables for fixed blocks
   if (!fixed_tl) {
     let i; // temporary variable
-    let l = []; // 288 length list for huft_build (initialized below)
+    const l = []; // 288 length list for huft_build (initialized below)
     let h; // HuftBuild
 
     // literal table
@@ -693,12 +692,8 @@ function inflate_dynamic(buff: number[], off: number, size: number) {
   let i; // temporary variables
   let j;
   let l; // last length
-  let n; // number of lengths to get
   let t; // (HuftNode) literal/length code table
-  let nb; // number of bit length codes
-  let nl; // number of literal/length codes
-  let nd; // number of distance codes
-  let ll = [];
+  const ll = [];
   let h; // (HuftBuild)
 
   // literal/length and distance code lengths
@@ -708,13 +703,13 @@ function inflate_dynamic(buff: number[], off: number, size: number) {
 
   // read in table lengths
   NEEDBITS(5);
-  nl = 257 + GETBITS(5); // number of literal/length codes
+  const nl = 257 + GETBITS(5); // number of literal/length codes
   DUMPBITS(5);
   NEEDBITS(5);
-  nd = 1 + GETBITS(5); // number of distance codes
+  const nd = 1 + GETBITS(5); // number of distance codes
   DUMPBITS(5);
   NEEDBITS(4);
-  nb = 4 + GETBITS(4); // number of bit length codes
+  const nb = 4 + GETBITS(4); // number of bit length codes
   DUMPBITS(4);
   if (nl > 286 || nd > 30) {
     return -1; // bad lengths
@@ -741,7 +736,7 @@ function inflate_dynamic(buff: number[], off: number, size: number) {
   bl = h.m;
 
   // read in literal and distance code lengths
-  n = nl + nd;
+  const n = nl + nd; // number of lengths to get
   i = l = 0;
   while (i < n) {
     NEEDBITS(bl);

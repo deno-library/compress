@@ -3,6 +3,20 @@ import { gunzipFile, gzipFile } from "../gzip/gzip_file.ts";
 import type { compressInterface, uncompressInterface } from "../interface.ts";
 import { path } from "../deps.ts";
 
+/**
+ * @module
+ * @description This module provides functions to compress and uncompress files using tar and gzip formats.
+ * @exports uncompress
+ * @exports compress
+ */
+ 
+/**
+ * Uncompresses a .tgz or .gz file to a specified destination.
+ * @param {string} src - The source file path.
+ * @param {string} dest - The destination directory path.
+ * @param {uncompressInterface} [options] - Optional parameters for uncompression.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
 export async function uncompress(src: string, dest: string, options?: uncompressInterface): Promise<void> {
   const filename = path.basename(src);
   const extname = path.extname(filename);
@@ -16,6 +30,13 @@ export async function uncompress(src: string, dest: string, options?: uncompress
   await Deno.remove(tmpDir, { recursive: true });
 }
 
+/**
+ * Compresses a file to a .tgz format.
+ * @param {string} src - The source file path.
+ * @param {string} dest - The destination file path.
+ * @param {compressInterface} [options] - Optional parameters for compression.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
 export async function compress(
   src: string,
   dest: string,

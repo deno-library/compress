@@ -2,14 +2,15 @@ import { Crc32Stream, EventEmitter, writeAll } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { getHeader, putLong } from "./gzip.ts";
 import { Deflate } from "../zlib/mod.ts";
+import type { Writer as StdWriter } from "jsr:@std/io/types";
 
-type File = Deno.File;
+type File = Deno.FsFile;
 
 interface Options {
   onceSize?: number;
 }
 
-export default class Writer extends EventEmitter implements Deno.Writer {
+export default class Writer extends EventEmitter implements StdWriter {
   private writer!: File;
   private bytesWritten = 0;
   private path: string;
@@ -38,7 +39,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
       timestamp,
       name,
     });
-    await Deno.write(this.writer.rid, headers);
+    await this.writer.write(headers);
   }
 
   async write(p: Uint8Array): Promise<number> {
@@ -53,7 +54,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
       const compressed = this.deflate.push(buf, true);
       await writeAll(this.writer, compressed);
       const tail = this.getTail();
-      await Deno.write(this.writer.rid, tail);
+      await this.writer.write(tail);
     } else if (this.chuncksBytes >= this.onceSize) {
       const buf = concatUint8Array(this.chuncks);
       const compressed = this.deflate.push(buf, false);
@@ -67,7 +68,7 @@ export default class Writer extends EventEmitter implements Deno.Writer {
 
   close(): void {
     this.emit("bytesWritten", this.bytesWritten);
-    Deno.close(this.writer.rid);
+    this.writer.close();
   }
 
   private getTail() {

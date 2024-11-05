@@ -2,14 +2,15 @@ import { Crc32Stream, EventEmitter, writeAll } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { checkHeader, checkTail } from "./gzip.ts";
 import { Inflate } from "../zlib/mod.ts";
+import type { Writer as StdWriter } from "jsr:@std/io/types";
 
-type File = Deno.File;
+type File = Deno.FsFile;
 
 interface Options {
   onceSize?: number;
 }
 
-export default class Writer extends EventEmitter implements Deno.Writer {
+export default class Writer extends EventEmitter implements StdWriter {
   protected writer!: File;
   protected bytesWritten = 0; // readed size of reader
   private path: string;
@@ -79,6 +80,6 @@ export default class Writer extends EventEmitter implements Deno.Writer {
 
   close(): void {
     this.emit("bytesWritten", this.bytesWritten);
-    Deno.close(this.writer.rid);
+    this.writer.close();
   }
 }

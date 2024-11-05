@@ -1,6 +1,12 @@
 import { Buffer, copy, ensureDir, path, Tar, Untar } from "../deps.ts";
 import type { compressInterface, uncompressInterface } from "../interface.ts";
 
+/**
+ * Uncompresses a file.
+ * @param {string} src - Source file path.
+ * @param {string} dest - Destination file path.
+ * @param {uncompressInterface} [options] - Optional parameters.
+ */
 export async function uncompress(
   src: string,
   dest: string,
@@ -25,6 +31,12 @@ export async function uncompress(
 
 // iteratively
 // fix for issue: https://github.com/deno-library/compress/issues/8
+/**
+ * Compresses a file.
+ * @param {string} src - Source file path.
+ * @param {string} dest - Destination file path.
+ * @param {compressInterface} [options] - Optional parameters.
+ */
 export async function compress(
   src: string,
   dest: string,

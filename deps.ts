@@ -1,9 +1,7 @@
-export { Tar, Untar } from "https://deno.land/std@0.213.0/archive/mod.ts";
-export { ensureFile } from "https://deno.land/std@0.129.0/fs/ensure_file.ts";
-export { ensureDir } from "https://deno.land/std@0.129.0/fs/ensure_dir.ts";
-export { EventEmitter } from "https://deno.land/std@0.129.0/node/events.ts";
-export { crc32, Crc32Stream } from "https://deno.land/x/crc32@v0.2.0/mod.ts";
-export * as path from "https://deno.land/std@0.129.0/path/mod.ts";
-export { readAll, writeAll } from "https://deno.land/std@0.129.0/io/util.ts";
-export { copy } from "https://deno.land/std@0.129.0/streams/conversion.ts";
-export { Buffer } from "https://deno.land/std@0.129.0/io/buffer.ts";
+export { EventEmitter } from "node:events";
+export { Tar } from "jsr:@std/archive@0.225.4/tar";
+export { Untar } from "jsr:@std/archive@0.225.4/untar";
+export { ensureDir, ensureFile } from "jsr:@std/fs@1.0.5";
+export * as path from "jsr:@std/path@1.0.8";
+export { Buffer, copy, readAll, writeAll } from "jsr:@std/io@0.225.0";
+export { crc32, Crc32Stream } from "jsr:@deno-library/crc32@1.0.2";

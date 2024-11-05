@@ -1,4 +1,11 @@
-export async function readMsg(reader: Deno.Reader): Promise<Uint8Array | null> {
+import type { Reader } from "jsr:@std/io/types";
+
+/**
+ * Reads a message from the provided Deno.Reader instance.
+ * @param reader - The Deno.Reader instance to read from.
+ * @returns A Promise that resolves to a Uint8Array or null if no more data is available.
+ */
+export async function readMsg(reader: Reader): Promise<Uint8Array | null> {
   const arr: Uint8Array[] = [];
   const n = 100;
   let readed: number | null;
@@ -18,6 +25,11 @@ export async function readMsg(reader: Deno.Reader): Promise<Uint8Array | null> {
   return result;
 }
 
+/**
+ * Concatenates multiple Uint8Array instances into a single Uint8Array.
+ * @param arr - An array of Uint8Array instances to concatenate.
+ * @returns A single Uint8Array containing all the concatenated data.
+ */
 export function concatUint8Array(arr: Uint8Array[]): Uint8Array {
   const length = arr.reduce((pre, next) => pre + next.length, 0);
   const result = new Uint8Array(length);
