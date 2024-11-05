@@ -5,18 +5,21 @@ import { type CODE, message as msg } from "./zlib/messages.ts";
 import ZStream from "./zlib/zstream.ts";
 import STATUS from "./zlib/status.ts";
 
+/**
+ * Options for the Deflate class.
+ */
 export interface DeflateOptions {
-  level?: number;
-  method?: number;
-  chunkSize?: number;
-  windowBits?: number;
-  memLevel?: number;
-  strategy?: number;
-  to?: string;
-  raw?: boolean;
-  gzip?: boolean;
-  dictionary?: Uint8Array;
-  header?: zlibDeflate.Header;
+  level?: number; // Compression level (0-9)
+  method?: number; // Compression method
+  chunkSize?: number; // Size of each output chunk
+  windowBits?: number; // Size of the history buffer
+  memLevel?: number; // Memory level
+  strategy?: number; // Compression strategy
+  to?: string; // Output type
+  raw?: boolean; // Raw deflate (no header)
+  gzip?: boolean; // Gzip format
+  dictionary?: Uint8Array; // Dictionary for compression
+  header?: zlibDeflate.Header; // Custom header
 }
 
 interface DeflateOptionsRequired {
@@ -33,6 +36,9 @@ interface DeflateOptionsRequired {
   header?: zlibDeflate.Header;
 }
 
+/**
+ * Class for handling deflate compression.
+ */
 export class Deflate {
   err: STATUS = 0; // error code, if happens (0 = Z_OK)
   msg = ""; // error message
@@ -92,6 +98,12 @@ export class Deflate {
     }
   }
 
+  /**
+   * Pushes data to be compressed.
+   * @param data - The data to compress.
+   * @param mode - The compression mode.
+   * @returns The compressed data as a Uint8Array.
+   */
   push(data: Uint8Array, mode: boolean | number): Uint8Array {
     const strm = this.strm;
     const chunkSize = this.options.chunkSize;
@@ -150,7 +162,16 @@ export class Deflate {
   }
 }
 
-export function deflate(input: Uint8Array, options: DeflateOptions = {}): Uint8Array {
+/**
+ * Compresses the input data using deflate algorithm.
+ * @param input - The data to compress.
+ * @param options - Options for the deflate operation.
+ * @returns The compressed data as a Uint8Array.
+ */
+export function deflate(
+  input: Uint8Array,
+  options: DeflateOptions = {},
+): Uint8Array {
   const deflator = new Deflate(options);
   const result = deflator.push(input, true);
   // That will never happens, if you don't cheat with options :)
@@ -158,12 +179,30 @@ export function deflate(input: Uint8Array, options: DeflateOptions = {}): Uint8A
   return result;
 }
 
-export function deflateRaw(input: Uint8Array, options: DeflateOptions = {}): Uint8Array {
+/**
+ * Compresses the input data using raw deflate algorithm.
+ * @param input - The data to compress.
+ * @param options - Options for the deflate operation.
+ * @returns The compressed data as a Uint8Array.
+ */
+export function deflateRaw(
+  input: Uint8Array,
+  options: DeflateOptions = {},
+): Uint8Array {
   options.raw = true;
   return deflate(input, options);
 }
 
-export function gzip(input: Uint8Array, options: DeflateOptions = {}): Uint8Array {
+/**
+ * Compresses the input data using gzip format.
+ * @param input - The data to compress.
+ * @param options - Options for the deflate operation.
+ * @returns The compressed data as a Uint8Array.
+ */
+export function gzip(
+  input: Uint8Array,
+  options: DeflateOptions = {},
+): Uint8Array {
   options.gzip = true;
   return deflate(input, options);
 }

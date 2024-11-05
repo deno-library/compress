@@ -6,22 +6,31 @@ import { type CODE, message as msg } from "./zlib/messages.ts";
 import ZStream from "./zlib/zstream.ts";
 import GZheader from "./zlib/gzheader.ts";
 
+/**
+ * Options for the Inflate class.
+ */
 export interface InflateOptions {
-  windowBits?: number;
-  dictionary?: Uint8Array;
-  chunkSize?: number;
-  to?: string;
-  raw?: boolean;
+  windowBits?: number; // Size of the window for compression
+  dictionary?: Uint8Array; // Dictionary for decompression
+  chunkSize?: number; // Size of chunks to process
+  to?: string; // Output format
+  raw?: boolean; // Indicates if raw inflation is required
 }
 
+/**
+ * Required options for the Inflate class.
+ */
 interface InflateOptionsRequired {
-  windowBits: number;
-  dictionary?: Uint8Array;
-  chunkSize: number;
-  to: string;
-  raw?: boolean;
+  windowBits: number; // Required window size
+  dictionary?: Uint8Array; // Optional dictionary
+  chunkSize: number; // Required chunk size
+  to: string; // Required output format
+  raw?: boolean; // Indicates if raw inflation is required
 }
 
+/**
+ * Class for inflating compressed data.
+ */
 export class Inflate {
   err: STATUS = 0; // error code, if happens (0 = Z_OK)
   msg = ""; // error message
@@ -30,6 +39,10 @@ export class Inflate {
   options: InflateOptionsRequired;
   header: GZheader;
 
+  /**
+   * Creates an instance of Inflate.
+   * @param options - Options for the inflation process.
+   */
   constructor(options: InflateOptions) {
     this.options = {
       chunkSize: 16384,
@@ -91,6 +104,12 @@ export class Inflate {
     }
   }
 
+  /**
+   * Pushes data to be inflated.
+   * @param data - The compressed data to inflate.
+   * @param mode - The mode for inflation (finish or no flush).
+   * @returns The inflated data as a Uint8Array.
+   */
   push(data: Uint8Array, mode: boolean | number): Uint8Array {
     const strm = this.strm;
     const chunkSize = this.options.chunkSize;
@@ -185,7 +204,16 @@ export class Inflate {
   }
 }
 
-export function inflate(input: Uint8Array, options: InflateOptions = {}): Uint8Array {
+/**
+ * Inflates the input data with the given options.
+ * @param input - The compressed data to inflate.
+ * @param options - Options for the inflation process.
+ * @returns The inflated data as a Uint8Array.
+ */
+export function inflate(
+  input: Uint8Array,
+  options: InflateOptions = {},
+): Uint8Array {
   const inflator = new Inflate(options);
   const result = inflator.push(input, true);
   // That will never happens, if you don't cheat with options :)
@@ -193,9 +221,21 @@ export function inflate(input: Uint8Array, options: InflateOptions = {}): Uint8A
   return result;
 }
 
-export function inflateRaw(input: Uint8Array, options: InflateOptions = {}): Uint8Array {
+/**
+ * Inflates raw compressed data with the given options.
+ * @param input - The raw compressed data to inflate.
+ * @param options - Options for the inflation process.
+ * @returns The inflated data as a Uint8Array.
+ */
+export function inflateRaw(
+  input: Uint8Array,
+  options: InflateOptions = {},
+): Uint8Array {
   options.raw = true;
   return inflate(input, options);
 }
 
+/**
+ * Alias for the inflate function, specifically for gzip.
+ */
 export const gunzip = inflate;
