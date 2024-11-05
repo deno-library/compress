@@ -1,5 +1,14 @@
 ## Changelog
 
+### v0.5.0 - 2024.11.5
+
+- refactor: Use `@std/tar` instead of `@std/archive` due to deprecation
+- refactor: use Deno API for gzip file handling
+
+### v0.4.9 - 2024.11.5
+
+- Add symbol documentation
+
 ### v0.4.8 - 2024.11.5
 
 - Added support for zip[#14]

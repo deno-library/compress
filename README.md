@@ -18,13 +18,12 @@ If you want to read and write files, you need the following [permissions](https:
 
 > --allow-read --allow-write
 
-## `tar`
-
-For tar (un)compression, Deno v1.2.2+ is required. The reason can be seen here:
-
-> <https://github.com/denoland/deno/pull/6905>
-
 ### Definition
+
+v0.5.0
+Use `@std/tar` instead of `@std/archive` due to deprecation
+If you want to use the old API, you can do it
+> import { tar } from "jsr:@deno-library/compress/tar_archive/mod.ts";
 
 ```ts
 // JSR
@@ -167,6 +166,11 @@ const decompressed = gunzip(compressed);
 ```
 
 ## `tgz`
+
+v0.5.0
+Use `@std/tar` instead of `@std/archive` due to deprecation
+If you want to use the old API, you can do it
+> import { tgz } from "jsr:@deno-library/compress/tgz_archive/mod.ts";
 
 ### Definition
 

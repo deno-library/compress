@@ -2,6 +2,10 @@ import { copy, EventEmitter } from "../deps.ts";
 import GzipWriter from "./writer_gzip.ts";
 import GunzipWriter from "./writer_gunzip.ts";
 
+/** 
+ * @symbol GzipStream 
+ * @description A class for compressing and uncompressing files using Gzip.
+ */
 export class GzipStream extends EventEmitter {
   constructor() {
     super();

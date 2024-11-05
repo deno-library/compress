@@ -1711,6 +1711,13 @@ function qoutbuf() {
   }
 }
 
+/**
+ * Compresses the input data using the DEFLATE algorithm.
+ * 
+ * @param bytes - The input data as a Uint8Array to be compressed.
+ * @param level - The compression level (default is DEFAULT_LEVEL).
+ * @returns A Uint8Array containing the compressed data.
+ */
 export function deflateRaw(
   bytes: Uint8Array,
   level: number = DEFAULT_LEVEL,

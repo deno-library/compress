@@ -10,6 +10,15 @@ interface Options {
   onceSize?: number;
 }
 
+/**
+ * @module writer_gunzip
+ * @description This module provides a Writer class for handling GZIP decompression and writing to a file.
+ * @example
+ * const writer = new Writer('output.txt', { onceSize: 2048 });
+ * await writer.setup();
+ * await writer.write(data);
+ * writer.close();
+ */
 export default class Writer extends EventEmitter implements StdWriter {
   protected writer!: File;
   protected bytesWritten = 0; // readed size of reader

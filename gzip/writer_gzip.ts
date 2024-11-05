@@ -10,6 +10,18 @@ interface Options {
   onceSize?: number;
 }
 
+/**
+ * @class Writer
+ * @extends EventEmitter
+ * @description A class for writing GZIP compressed data to a file.
+ * @param {string} path - The file path where the data will be written.
+ * @param {Options} [options] - Optional settings for the writer.
+ * @property {number} onceSize - The size threshold for writing chunks.
+ * @property {number} bytesWritten - The total number of bytes written.
+ * @method setup - Prepares the writer by opening the file and writing headers.
+ * @method write - Writes a chunk of data to the file, compressing it if necessary.
+ * @method close - Closes the writer and emits the total bytes written.
+ */
 export default class Writer extends EventEmitter implements StdWriter {
   private writer!: File;
   private bytesWritten = 0;

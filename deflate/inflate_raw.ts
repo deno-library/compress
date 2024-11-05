@@ -927,6 +927,11 @@ function inflate_internal(buff: number[], off: number, size: number) {
   return n;
 }
 
+/**
+ * Decompresses a raw Uint8Array data.
+ * @param arr - The Uint8Array data to decompress.
+ * @returns The decompressed Uint8Array data.
+ */
 export function inflateRaw(arr: Uint8Array): Uint8Array {
   let i;
   const buff: number[] = [];

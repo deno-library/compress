@@ -123,6 +123,11 @@ interface Options {
   name?: string;
 }
 
+/**
+ * Generates the header for a GZIP file.
+ * @param {Options} [options={}] - Optional parameters.
+ * @returns {Uint8Array} - The byte array of the GZIP file header.
+ */
 export function getHeader(
   options: Options = {},
 ): Uint8Array {
@@ -167,6 +172,17 @@ export function getHeader(
   return new Uint8Array(out);
 }
 
+/**
+ * @module gzip
+ * @description This module provides functions to compress and decompress data using the GZIP format.
+ * @example
+ * const compressed = gzip(data);
+ * const decompressed = gunzip(compressed);
+ * @typedef {Object} Options
+ * @property {number} [level] - Compression level (default is 6).
+ * @property {number} [timestamp] - Timestamp for the header.
+ * @property {string} [name] - Original name of the file.
+ */
 export function gzip(
   bytes: Uint8Array,
   options: Options = {},
@@ -223,6 +239,11 @@ export function gzip(
   return new Uint8Array(out);
 }
 
+/**
+ * Decompresses a GZIP formatted byte array.
+ * @param {Uint8Array} bytes - The byte array to decompress.
+ * @returns {Uint8Array} - The decompressed byte array.
+ */
 export function gunzip(bytes: Uint8Array): Uint8Array {
   const arr = Array.from(bytes);
 
@@ -253,6 +274,11 @@ export function gunzip(bytes: Uint8Array): Uint8Array {
   return res;
 }
 
+/**
+ * Checks the validity of the GZIP file header.
+ * @param {number[]} arr - The array containing GZIP data.
+ * @throws {string} - Throws an error if the header is invalid.
+ */
 export function checkHeader(arr: number[]) {
   // check the first two bytes for the magic numbers
   if (readByte(arr) !== ID1 || readByte(arr) !== ID2) {
@@ -289,6 +315,11 @@ export function checkHeader(arr: number[]) {
   }
 }
 
+/**
+ * Checks the GZIP file's tail for CRC32 checksum and file size.
+ * @param {number[]} arr - The array containing GZIP data.
+ * @returns {{ crc32: number, size: number }} - An object containing CRC32 and file size.
+ */
 export function checkTail(arr: number[]) {
   const tail = arr.splice(arr.length - 8);
 
