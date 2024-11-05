@@ -1,4 +1,4 @@
-import type { Reader } from "jsr:@std/io/types";
+import type { Reader } from "../deps.ts";
 
 /**
  * Reads a message from the provided Deno.Reader instance.

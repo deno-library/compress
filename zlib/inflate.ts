@@ -2,7 +2,7 @@
 import { concatUint8Array } from "../utils/uint8.ts";
 import * as zlibInflate from "./zlib/inflate.ts";
 import STATUS from "./zlib/status.ts";
-import { CODE, message as msg } from "./zlib/messages.ts";
+import { type CODE, message as msg } from "./zlib/messages.ts";
 import ZStream from "./zlib/zstream.ts";
 import GZheader from "./zlib/gzheader.ts";
 
@@ -14,12 +14,20 @@ export interface InflateOptions {
   raw?: boolean;
 }
 
+interface InflateOptionsRequired {
+  windowBits: number;
+  dictionary?: Uint8Array;
+  chunkSize: number;
+  to: string;
+  raw?: boolean;
+}
+
 export class Inflate {
   err: STATUS = 0; // error code, if happens (0 = Z_OK)
   msg = ""; // error message
   ended = false; // used to avoid multiple onEnd() calls
   strm: ZStream;
-  options: any;
+  options: InflateOptionsRequired;
   header: GZheader;
 
   constructor(options: InflateOptions) {
@@ -60,7 +68,7 @@ export class Inflate {
     this.strm = new ZStream();
     this.strm.avail_out = 0;
 
-    var status = zlibInflate.inflateInit2(
+    let status = zlibInflate.inflateInit2(
       this.strm,
       opt.windowBits,
     );
@@ -92,7 +100,7 @@ export class Inflate {
 
     // Flag to properly process Z_BUF_ERROR on testing inflate call
     // when we check that all output data was flushed.
-    var allowBufError = false;
+    let allowBufError = false;
 
     if (this.ended) {
       throw new Error("can not call after ended");
@@ -177,7 +185,7 @@ export class Inflate {
   }
 }
 
-export function inflate(input: Uint8Array, options: InflateOptions = {}) {
+export function inflate(input: Uint8Array, options: InflateOptions = {}): Uint8Array {
   const inflator = new Inflate(options);
   const result = inflator.push(input, true);
   // That will never happens, if you don't cheat with options :)
@@ -185,7 +193,7 @@ export function inflate(input: Uint8Array, options: InflateOptions = {}) {
   return result;
 }
 
-export function inflateRaw(input: Uint8Array, options: InflateOptions = {}) {
+export function inflateRaw(input: Uint8Array, options: InflateOptions = {}): Uint8Array {
   options.raw = true;
   return inflate(input, options);
 }

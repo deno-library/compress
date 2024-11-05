@@ -1,7 +1,7 @@
 // from https://github.com/nodeca/pako
 import * as zlibDeflate from "./zlib/deflate.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
-import { CODE, message as msg } from "./zlib/messages.ts";
+import { type CODE, message as msg } from "./zlib/messages.ts";
 import ZStream from "./zlib/zstream.ts";
 import STATUS from "./zlib/status.ts";
 
@@ -19,16 +19,30 @@ export interface DeflateOptions {
   header?: zlibDeflate.Header;
 }
 
+interface DeflateOptionsRequired {
+  level: number;
+  method: number;
+  chunkSize: number;
+  windowBits: number;
+  memLevel: number;
+  strategy: number;
+  to: string;
+  raw?: boolean;
+  gzip?: boolean;
+  dictionary?: Uint8Array;
+  header?: zlibDeflate.Header;
+}
+
 export class Deflate {
   err: STATUS = 0; // error code, if happens (0 = Z_OK)
   msg = ""; // error message
   ended = false; // used to avoid multiple onEnd() calls
   strm: ZStream;
   _dict_set = false;
-  options: any;
+  options: DeflateOptionsRequired;
 
   constructor(options: DeflateOptions = {}) {
-    this.options = Object.assign({
+    this.options = {
       level: STATUS.Z_DEFAULT_COMPRESSION,
       method: STATUS.Z_DEFLATED,
       chunkSize: 16384,
@@ -36,7 +50,8 @@ export class Deflate {
       memLevel: 8,
       strategy: STATUS.Z_DEFAULT_STRATEGY,
       to: "",
-    }, options);
+      ...options,
+    };
 
     const opt = this.options;
 
@@ -135,7 +150,7 @@ export class Deflate {
   }
 }
 
-export function deflate(input: Uint8Array, options: DeflateOptions = {}) {
+export function deflate(input: Uint8Array, options: DeflateOptions = {}): Uint8Array {
   const deflator = new Deflate(options);
   const result = deflator.push(input, true);
   // That will never happens, if you don't cheat with options :)
@@ -143,12 +158,12 @@ export function deflate(input: Uint8Array, options: DeflateOptions = {}) {
   return result;
 }
 
-export function deflateRaw(input: Uint8Array, options: DeflateOptions = {}) {
+export function deflateRaw(input: Uint8Array, options: DeflateOptions = {}): Uint8Array {
   options.raw = true;
   return deflate(input, options);
 }
 
-export function gzip(input: Uint8Array, options: DeflateOptions = {}) {
+export function gzip(input: Uint8Array, options: DeflateOptions = {}): Uint8Array {
   options.gzip = true;
   return deflate(input, options);
 }

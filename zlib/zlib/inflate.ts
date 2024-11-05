@@ -3,6 +3,7 @@ import { crc32 } from "./crc32.ts";
 import inflate_fast from "./inffast.ts";
 import inflate_table from "./inftrees.ts";
 import type ZStream from "./zstream.ts";
+import type GZheader from "./gzheader.ts";
 
 const CODES = 0;
 const LENS = 1;
@@ -91,22 +92,21 @@ function zswap32(q: number) {
 
 export class InflateState {
   mode = 0; /* current inflate mode */
-  last = false; /* true if processing last block */
+  last = 0; /* true if processing last block */
   wrap = 0; /* bit 0 true for zlib, bit 1 true for gzip */
   havedict = false; /* true if dictionary provided */
   flags = 0; /* gzip header method and flags (0 if zlib) */
   dmax = 0; /* zlib header max distance (INFLATE_STRICT) */
   check = 0; /* protected copy of check value */
   total = 0; /* protected copy of output count */
-  // TODO: may be {}
-  head = null; /* where to save gzip header information */
+  head: GZheader | null = null; /* where to save gzip header information */
 
   /* sliding window */
   wbits = 0; /* log base 2 of requested window size */
   wsize = 0; /* window size or zero if not using window */
   whave = 0; /* valid bytes in the window */
   wnext = 0; /* window write index */
-  window = null; /* allocated sliding window, if needed */
+  window: Uint8Array | null = null; /* allocated sliding window, if needed */
 
   /* bit accumulator */
   hold = 0; /* input bit accumulator */
@@ -120,8 +120,8 @@ export class InflateState {
   extra = 0; /* extra bits needed */
 
   /* fixed and dynamic code tables */
-  lencode = null; /* starting table for length/literal codes */
-  distcode = null; /* starting table for distance codes */
+  lencode: Uint32Array | null = null; /* starting table for length/literal codes */
+  distcode: Uint32Array | null = null; /* starting table for distance codes */
   lenbits = 0; /* index bits for lencode */
   distbits = 0; /* index bits for distcode */
 
@@ -140,18 +140,16 @@ export class InflateState {
    as buffers so we don't need codes
   */
   //codes = new Uint32Array(ENOUGH);       /* space for code tables */
-  lendyn = null; /* dynamic table for length/literal codes (JS specific) */
-  distdyn = null; /* dynamic table for distance codes (JS specific) */
+  lendyn: Uint32Array | null = null; /* dynamic table for length/literal codes (JS specific) */
+  distdyn: Uint32Array | null = null; /* dynamic table for distance codes (JS specific) */
   sane = 0; /* if false, allow invalid distance too far */
   back = 0; /* bits back of last unprocessed length/lit */
   was = 0; /* initial length of match */
 }
 
 export function inflateResetKeep(strm: ZStream) {
-  let state;
-
   if (!strm || !strm.state) return Z_STREAM_ERROR;
-  state = strm.state;
+  const state = strm.state as InflateState;
   strm.total_in = strm.total_out = state.total = 0;
   strm.msg = ""; /*Z_NULL*/
   if (state.wrap) {
@@ -160,7 +158,7 @@ export function inflateResetKeep(strm: ZStream) {
   }
   state.mode = HEAD;
   state.last = 0;
-  state.havedict = 0;
+  state.havedict = false;
   state.dmax = 32768;
   state.head = null /*Z_NULL*/;
   state.hold = 0;
@@ -176,23 +174,20 @@ export function inflateResetKeep(strm: ZStream) {
 }
 
 export function inflateReset(strm: ZStream) {
-  let state;
-
   if (!strm || !strm.state) return Z_STREAM_ERROR;
-  state = strm.state;
+  const state = strm.state as InflateState;
   state.wsize = 0;
   state.whave = 0;
   state.wnext = 0;
   return inflateResetKeep(strm);
 }
 
-export function inflateReset2(strm: any, windowBits: any) {
+export function inflateReset2(strm: ZStream, windowBits: number) {
   let wrap;
-  let state;
 
   /* get the state */
   if (!strm || !strm.state) return Z_STREAM_ERROR;
-  state = strm.state;
+  const state = strm.state as InflateState;
 
   /* extract wrap request from windowBits parameter */
   if (windowBits < 0) {
@@ -219,20 +214,17 @@ export function inflateReset2(strm: any, windowBits: any) {
   return inflateReset(strm);
 }
 
-export function inflateInit2(strm: ZStream, windowBits: any) {
-  let ret;
-  let state;
-
+export function inflateInit2(strm: ZStream, windowBits: number) {
   if (!strm) return Z_STREAM_ERROR;
   //strm.msg = Z_NULL;                 /* in case we return an error */
 
-  state = new InflateState();
+  const state = new InflateState();
 
   //if (state === Z_NULL) return Z_MEM_ERROR;
   //Tracev((stderr, "inflate: allocated\n"));
   strm.state = state;
   state.window = null /*Z_NULL*/;
-  ret = inflateReset2(strm, windowBits);
+  const ret = inflateReset2(strm, windowBits);
   if (ret !== Z_OK) {
     strm.state = null /*Z_NULL*/;
   }
@@ -255,9 +247,9 @@ export function inflateInit(strm: ZStream) {
  */
 let virgin = true;
 
-let lenfix: any, distfix: any; // We have no pointers in JS, so keep tables separate
+let lenfix: Uint32Array, distfix: Uint32Array; // We have no pointers in JS, so keep tables separate
 
-function fixedtables(state: any) {
+function fixedtables(state: InflateState) {
   /* build fixed huffman tables if first call (may not be thread safe) */
   if (virgin) {
     let sym;
@@ -313,9 +305,9 @@ function fixedtables(state: any) {
  output will fall in the output data, making match copies simpler and faster.
  The advantage may be dependent on the size of the processor's data caches.
  */
-function updatewindow(strm: ZStream, src: any, end: any, copy: any) {
+function updatewindow(strm: ZStream, src: Uint8Array, end: number, copy: number) {
   let dist;
-  let state = strm.state;
+  const state = strm.state as InflateState;
 
   /* if it hasn't been done already, allocate space for the window */
   if (state.window === null) {
@@ -353,8 +345,7 @@ function updatewindow(strm: ZStream, src: any, end: any, copy: any) {
   return 0;
 }
 
-export function inflate(strm: ZStream, flush: any) {
-  let state;
+export function inflate(strm: ZStream, flush: number) {
   let input: Uint8Array, output: Uint8Array; // input/output buffers
   let next; /* next input INDEX */
   let put; /* next output INDEX */
@@ -371,12 +362,12 @@ export function inflate(strm: ZStream, flush: any) {
   let last_bits, last_op, last_val; // paked "last" denormalized (JS specific)
   let len; /* length to copy for repeats, bits to drop */
   let ret; /* return code */
-  let hbuf = new Uint8Array(4); /* buffer for gzip header crc calculation */
+  const hbuf = new Uint8Array(4); /* buffer for gzip header crc calculation */
   let opts;
 
   let n; // temporary let for NEED_BITS
 
-  let order = /* permutation of code lengths */
+  const order = /* permutation of code lengths */
     [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
 
   if (
@@ -386,7 +377,7 @@ export function inflate(strm: ZStream, flush: any) {
     return Z_STREAM_ERROR;
   }
 
-  state = strm.state;
+  const state = strm.state as InflateState;
   if (state.mode === TYPE) state.mode = TYPEDO; /* skip check */
 
   //--- LOAD() ---
@@ -603,12 +594,12 @@ export function inflate(strm: ZStream, flush: any) {
               len = state.head.extra_len - state.length;
               if (!state.head.extra) {
                 // Use untyped array for more convenient processing later
-                state.head.extra = new Array(state.head.extra_len);
+                state.head.extra = new Uint8Array(state.head.extra_len);
               }
               // extra field is limited to 65536 bytes
               // - no need for additional size check
               /*len + copy > state.head.extra_max - len ? state.head.extra_max : copy,*/
-              state.head.extra.set(input.subarray(next, next + copy), len);
+              state.head.extra!.set(input.subarray(next, next + copy), len);
               //zmemcpy(state.head.extra + len, next,
               //        len + copy > state.head.extra_max ?
               //        state.head.extra_max - len : copy);
@@ -722,7 +713,7 @@ export function inflate(strm: ZStream, flush: any) {
         state.mode = DICT;
         /* falls through */
       case DICT:
-        if (state.havedict === 0) {
+        if (!state.havedict) {
           //--- RESTORE() ---
           strm.next_out = put;
           strm.avail_out = left;
@@ -912,7 +903,7 @@ export function inflate(strm: ZStream, flush: any) {
           state.lens,
           0,
           19,
-          state.lencode,
+          state.lencode!,
           0,
           state.work,
           opts,
@@ -932,7 +923,7 @@ export function inflate(strm: ZStream, flush: any) {
         while (state.have < state.nlen + state.ndist) {
           for (;;) {
             here = state
-              .lencode[
+              .lencode![
                 hold & ((1 << state.lenbits) - 1)
               ]; /*BITS(state.lenbits)*/
             here_bits = here >>> 24;
@@ -1052,7 +1043,7 @@ export function inflate(strm: ZStream, flush: any) {
           state.lens,
           0,
           state.nlen,
-          state.lencode,
+          state.lencode!,
           0,
           state.work,
           opts,
@@ -1078,7 +1069,7 @@ export function inflate(strm: ZStream, flush: any) {
           state.lens,
           state.nlen,
           state.ndist,
-          state.distcode,
+          state.distcode!,
           0,
           state.work,
           opts,
@@ -1130,7 +1121,7 @@ export function inflate(strm: ZStream, flush: any) {
         state.back = 0;
         for (;;) {
           here = state
-            .lencode[
+            .lencode![
               hold & ((1 << state.lenbits) - 1)
             ]; /*BITS(state.lenbits)*/
           here_bits = here >>> 24;
@@ -1150,7 +1141,7 @@ export function inflate(strm: ZStream, flush: any) {
           last_op = here_op;
           last_val = here_val;
           for (;;) {
-            here = state.lencode[
+            here = state.lencode![
               last_val +
               ((hold &
                 ((1 << (last_bits + last_op)) -
@@ -1226,7 +1217,7 @@ export function inflate(strm: ZStream, flush: any) {
       case DIST:
         for (;;) {
           here = state
-            .distcode[
+            .distcode![
               hold & ((1 << state.distbits) - 1)
             ]; /*BITS(state.distbits)*/
           here_bits = here >>> 24;
@@ -1246,7 +1237,7 @@ export function inflate(strm: ZStream, flush: any) {
           last_op = here_op;
           last_val = here_val;
           for (;;) {
-            here = state.distcode[
+            here = state.distcode![
               last_val +
               ((hold &
                 ((1 << (last_bits + last_op)) -
@@ -1358,7 +1349,7 @@ export function inflate(strm: ZStream, flush: any) {
         left -= copy;
         state.length -= copy;
         do {
-          output[put++] = from_source[from++];
+          output[put++] = from_source![from++];
         } while (--copy);
         if (state.length === 0) state.mode = LEN;
         break;
@@ -1495,7 +1486,7 @@ export function inflateEnd(strm: ZStream) {
     return Z_STREAM_ERROR;
   }
 
-  let state = strm.state;
+  const state = strm.state as InflateState;
   if (state.window) {
     state.window = null;
   }
@@ -1503,12 +1494,10 @@ export function inflateEnd(strm: ZStream) {
   return Z_OK;
 }
 
-export function inflateGetHeader(strm: ZStream, head: any) {
-  let state;
-
+export function inflateGetHeader(strm: ZStream, head: GZheader) {
   /* check state */
   if (!strm || !strm.state) return Z_STREAM_ERROR;
-  state = strm.state;
+  const state = strm.state as InflateState;
   if ((state.wrap & 2) === 0) return Z_STREAM_ERROR;
 
   /* save header structure */
@@ -1517,12 +1506,10 @@ export function inflateGetHeader(strm: ZStream, head: any) {
   return Z_OK;
 }
 
-export function inflateSetDictionary(strm: ZStream, dictionary: any) {
-  let dictLength = dictionary.length;
+export function inflateSetDictionary(strm: ZStream, dictionary: Uint8Array) {
+  const dictLength = dictionary.length;
 
-  let state;
   let dictid;
-  let ret;
 
   /* check state */
   if (
@@ -1530,7 +1517,7 @@ export function inflateSetDictionary(strm: ZStream, dictionary: any) {
   ) {
     return Z_STREAM_ERROR;
   }
-  state = strm.state;
+  const state = strm.state as InflateState;
 
   if (state.wrap !== 0 && state.mode !== DICT) {
     return Z_STREAM_ERROR;
@@ -1547,12 +1534,12 @@ export function inflateSetDictionary(strm: ZStream, dictionary: any) {
   }
   /* copy dictionary to window using updatewindow(), which will amend the
    existing dictionary if appropriate */
-  ret = updatewindow(strm, dictionary, dictLength, dictLength);
+   const ret = updatewindow(strm, dictionary, dictLength, dictLength);
   if (ret) {
     state.mode = MEM;
     return Z_MEM_ERROR;
   }
-  state.havedict = 1;
+  state.havedict = true;
   // Tracev((stderr, "inflate:   dictionary set\n"));
   return Z_OK;
 }

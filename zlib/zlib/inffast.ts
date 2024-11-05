@@ -1,3 +1,6 @@
+import type { InflateState } from "./inflate.ts";
+import type ZStream from "./zstream.ts";
+
 // See state defs from inflate.js
 const BAD = 30; /* got a data error -- remain here until reset */
 const TYPE = 12; /* i: waiting for type bits, including last-flag bit */
@@ -37,27 +40,12 @@ const TYPE = 12; /* i: waiting for type bits, including last-flag bit */
       requires strm.avail_out >= 258 for each loop to avoid checking for
       output space.
  */
-export default function inflate_fast(strm: any, start: number) {
-  let state;
+export default function inflate_fast(strm: ZStream, start: number) {
   let _in; /* local strm.input */
-  let last; /* have enough input while in < last */
   let _out; /* local strm.output */
-  let beg; /* inflate()'s initial strm.output */
-  let end; /* while out < end, enough space available */
-  //#ifdef INFLATE_STRICT
-  let dmax; /* maximum distance from zlib header */
-  //#endif
-  let wsize; /* window size or zero if not using window */
-  let whave; /* valid bytes in the window */
-  let wnext; /* window write index */
   // Use `s_window` instead `window`, avoid conflict with instrumentation tools
-  let s_window; /* allocated sliding window, if wsize != 0 */
   let hold; /* local strm.hold */
   let bits; /* local strm.bits */
-  let lcode; /* local strm.lencode */
-  let dcode; /* local strm.distcode */
-  let lmask; /* mask for first level of length codes */
-  let dmask; /* mask for first level of distance codes */
   let here; /* retrieved table entry */
   let op; /* code bits, operation, extra bits, or */
   /*  window position, window bytes to copy */
@@ -66,31 +54,29 @@ export default function inflate_fast(strm: any, start: number) {
   let from; /* where to copy match from */
   let from_source;
 
-  let input, output; // JS specific, because we have no pointers
-
   /* copy state to local variables */
-  state = strm.state;
+  const state = strm.state as InflateState;
   //here = state.here;
   _in = strm.next_in;
-  input = strm.input;
-  last = _in + (strm.avail_in - 5);
+  const input = strm.input!; // JS specific, because we have no pointers
+  const last = _in + (strm.avail_in - 5); /* have enough input while in < last */
   _out = strm.next_out;
-  output = strm.output;
-  beg = _out - (start - strm.avail_out);
-  end = _out + (strm.avail_out - 257);
+  const output = strm.output!; // JS specific, because we have no pointers
+  const beg = _out - (start - strm.avail_out); /* inflate()'s initial strm.output */
+  const end = _out + (strm.avail_out - 257); /* while out < end, enough space available */
   //#ifdef INFLATE_STRICT
-  dmax = state.dmax;
+  const dmax = state.dmax; /* maximum distance from zlib header */
   //#endif
-  wsize = state.wsize;
-  whave = state.whave;
-  wnext = state.wnext;
-  s_window = state.window;
+  const wsize = state.wsize; /* window size or zero if not using window */
+  const whave = state.whave; /* valid bytes in the window */
+  const wnext = state.wnext; /* window write index */
+  const s_window = state.window!; /* allocated sliding window, if wsize != 0 */
   hold = state.hold;
   bits = state.bits;
-  lcode = state.lencode;
-  dcode = state.distcode;
-  lmask = (1 << state.lenbits) - 1;
-  dmask = (1 << state.distbits) - 1;
+  const lcode = state.lencode!; /* local strm.lencode */
+  const dcode = state.distcode!; /* local strm.distcode */
+  const lmask = (1 << state.lenbits) - 1; /* mask for first level of length codes */
+  const dmask = (1 << state.distbits) - 1; /* mask for first level of distance codes */
 
   /* decode literals and length/distances until end-of-block or not enough
      input data or output space */

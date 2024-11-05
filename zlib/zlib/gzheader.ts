@@ -8,7 +8,7 @@ export default class GZheader {
   /* operating system */
   os: number = 0;
   /* pointer to extra field or Z_NULL if none */
-  extra: any = null;
+  extra: Uint8Array | null = null;
   /* extra field length (valid if extra != Z_NULL) */
   extra_len: number = 0; // Actually, we don't need it in JS,
   // but leave for few code modifications
@@ -21,11 +21,11 @@ export default class GZheader {
   /* space at extra (only when reading header) */
   // extra_max  = 0;
   /* pointer to zero-terminated file name or Z_NULL */
-  name: string = "";
+  name: string | null = "";
   /* space at name (only when reading header) */
   // name_max   = 0;
   /* pointer to zero-terminated comment or Z_NULL */
-  comment: string = "";
+  comment: string | null = "";
   /* space at comment (only when reading header) */
   // comm_max   = 0;
   /* true if there was or will be a header crc */

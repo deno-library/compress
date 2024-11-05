@@ -1,9 +1,10 @@
-import { CODE, message as msg } from "./messages.ts";
+import { type CODE, message as msg } from "./messages.ts";
 import type ZStream from "./zstream.ts";
 import * as trees from "./trees.ts";
 import adler32 from "./adler32.ts";
 import { crc32 } from "./crc32.ts";
 import STATUS from "./status.ts";
+import type { TreeDesc } from "./trees.ts";
 
 /* Return codes for the compression/decompression functions. Negative values
  * are errors, positive values are used for special but normal events.
@@ -13,8 +14,10 @@ const Z_STREAM_END = 1;
 //const Z_NEED_DICT     = 2;
 //const Z_ERRNO         = -1;
 const Z_STREAM_ERROR = -2;
+// deno-lint-ignore no-unused-vars
 const Z_DATA_ERROR = -3;
 //const Z_MEM_ERROR     = -4;
+// deno-lint-ignore no-unused-vars
 const Z_BUF_ERROR = -5;
 //const Z_VERSION_ERROR = -6;
 
@@ -26,6 +29,7 @@ const Z_DEFAULT_COMPRESSION = -1;
 
 const Z_FILTERED = 1;
 const Z_HUFFMAN_ONLY = 2;
+// deno-lint-ignore no-unused-vars
 const Z_RLE = 3;
 const Z_FIXED = 4;
 const Z_DEFAULT_STRATEGY = 0;
@@ -62,7 +66,7 @@ const MAX_BITS = 15;
 
 const MIN_MATCH = 3;
 const MAX_MATCH = 258;
-const MIN_LOOKAHEAD = (MAX_MATCH + MIN_MATCH + 1);
+const MIN_LOOKAHEAD = MAX_MATCH + MIN_MATCH + 1;
 const PRESET_DICT = 0x20;
 const INIT_STATE = 42;
 const EXTRA_STATE = 69;
@@ -83,7 +87,7 @@ export interface Header {
   text: boolean;
   time: number;
   os: number;
-  extra: string[];
+  extra: number[];
   name: string;
   comment: string;
   hcrc: boolean;
@@ -95,7 +99,7 @@ function err(strm: ZStream, errorCode: CODE) {
 }
 
 function rank(f: number): number {
-  return ((f) << 1) - ((f) > 4 ? 9 : 0);
+  return (f << 1) - (f > 4 ? 9 : 0);
 }
 
 function zero(buf: Uint8Array | Uint16Array) {
@@ -109,7 +113,7 @@ function zero(buf: Uint8Array | Uint16Array) {
  * (See also read_buf()).
  */
 function flush_pending(strm: ZStream) {
-  let s = strm.state as DeflateState;
+  const s = strm.state as DeflateState;
 
   //_tr_flush_bits(s);
   let len = s.pending;
@@ -118,7 +122,7 @@ function flush_pending(strm: ZStream) {
   }
   if (len === 0) return;
   strm.output!.set(
-    s.pending_buf.subarray(s.pending_out, s.pending_out + len),
+    s.pending_buf!.subarray(s.pending_out, s.pending_out + len),
     strm.next_out,
   );
   strm.next_out += len;
@@ -131,10 +135,10 @@ function flush_pending(strm: ZStream) {
   }
 }
 
-function flush_block_only(s: DeflateState, last: any) {
+function flush_block_only(s: DeflateState, last: boolean) {
   trees._tr_flush_block(
     s,
-    (s.block_start >= 0 ? s.block_start : -1),
+    s.block_start >= 0 ? s.block_start : -1,
     s.strstart - s.block_start,
     last,
   );
@@ -142,8 +146,8 @@ function flush_block_only(s: DeflateState, last: any) {
   flush_pending(s.strm!);
 }
 
-function put_byte(s: any, b: any) {
-  s.pending_buf[s.pending++] = b;
+function put_byte(s: DeflateState, b: number) {
+  s.pending_buf![s.pending++] = b;
 }
 
 /* =========================================================================
@@ -151,11 +155,11 @@ function put_byte(s: any, b: any) {
  * IN assertion: the stream state is correct and there is enough room in
  * pending_buf.
  */
-function putShortMSB(s: any, b: any) {
+function putShortMSB(s: DeflateState, b: number) {
   //  put_byte(s, (Byte)(b >> 8));
   //  put_byte(s, (Byte)(b & 0xff));
-  s.pending_buf[s.pending++] = (b >>> 8) & 0xff;
-  s.pending_buf[s.pending++] = b & 0xff;
+  s.pending_buf![s.pending++] = (b >>> 8) & 0xff;
+  s.pending_buf![s.pending++] = b & 0xff;
 }
 
 /* ===========================================================================
@@ -165,7 +169,7 @@ function putShortMSB(s: any, b: any) {
  * allocating a large strm->input buffer and copying from it.
  * (See also flush_pending()).
  */
-function read_buf(strm: any, buf: any, start: any, size: any) {
+function read_buf(strm: ZStream, buf: Uint8Array, start: number, size: number) {
   let len = strm.avail_in;
 
   if (len > size) len = size;
@@ -174,10 +178,10 @@ function read_buf(strm: any, buf: any, start: any, size: any) {
   strm.avail_in -= len;
 
   // zmemcpy(buf, strm->next_in, len);
-  buf.set(strm.input.subarray(strm.next_in, strm.next_in + len), start);
-  if (strm.state.wrap === 1) {
+  buf.set(strm.input!.subarray(strm.next_in, strm.next_in + len), start);
+  if ((strm.state as DeflateState).wrap === 1) {
     strm.adler = adler32(strm.adler, buf, len, start);
-  } else if (strm.state.wrap === 2) {
+  } else if ((strm.state as DeflateState).wrap === 2) {
     strm.adler = crc32(strm.adler, buf, len, start);
   }
 
@@ -196,27 +200,27 @@ function read_buf(strm: any, buf: any, start: any, size: any) {
  *   string (strstart) and its distance is <= MAX_DIST, and prev_length >= 1
  * OUT assertion: the match length is not greater than s->lookahead.
  */
-function longest_match(s: any, cur_match: any) {
+function longest_match(s: DeflateState, cur_match: number) {
   let chain_length = s.max_chain_length; /* max hash chain length */
   let scan = s.strstart; /* current string */
   let match; /* matched string */
   let len; /* length of current match */
   let best_len = s.prev_length; /* best match length so far */
   let nice_match = s.nice_match; /* stop if match long enough */
-  let limit = (s.strstart > (s.w_size - MIN_LOOKAHEAD))
+  const limit = (s.strstart > (s.w_size - MIN_LOOKAHEAD))
     ? s.strstart - (s.w_size - MIN_LOOKAHEAD)
     : 0 /*NIL*/;
 
-  let _win = s.window; // shortcut
+  const _win = s.window!; // shortcut
 
-  let wmask = s.w_mask;
-  let prev = s.prev;
+  const wmask = s.w_mask;
+  const prev = s.prev!;
 
   /* Stop when cur_match becomes <= limit. To simplify the code,
    * we prevent matches with the string of window index 0.
    */
 
-  let strend = s.strstart + MAX_MATCH;
+  const strend = s.strstart + MAX_MATCH;
   let scan_end1 = _win[scan + best_len - 1];
   let scan_end = _win[scan + best_len];
 
@@ -315,8 +319,8 @@ function longest_match(s: any, cur_match: any) {
  *    performed for at least two bytes (required for the zip translate_eol
  *    option -- not supported here).
  */
-function fill_window(s: any) {
-  let _w_size = s.w_size;
+function fill_window(s: DeflateState) {
+  const _w_size = s.w_size;
   let p, n, m, more, str;
 
   //Assert(s->lookahead < MIN_LOOKAHEAD, "already enough lookahead");
@@ -342,7 +346,7 @@ function fill_window(s: any) {
      * move the upper half to the lower one to make room in the upper half.
      */
     if (s.strstart >= _w_size + (_w_size - MIN_LOOKAHEAD)) {
-      s.window.set(s.window.subarray(_w_size, _w_size + _w_size), 0);
+      s.window!.set(s.window!.subarray(_w_size, _w_size + _w_size), 0);
       s.match_start -= _w_size;
       s.strstart -= _w_size;
       /* we now have strstart >= MAX_DIST */
@@ -358,15 +362,15 @@ function fill_window(s: any) {
       n = s.hash_size;
       p = n;
       do {
-        m = s.head[--p];
-        s.head[p] = (m >= _w_size ? m - _w_size : 0);
+        m = s.head![--p];
+        s.head![p] = m >= _w_size ? m - _w_size : 0;
       } while (--n);
 
       n = _w_size;
       p = n;
       do {
-        m = s.prev[--p];
-        s.prev[p] = (m >= _w_size ? m - _w_size : 0);
+        m = s.prev![--p];
+        s.prev![p] = m >= _w_size ? m - _w_size : 0;
         /* If n is not on any hash chain, prev[n] is garbage but
          * its value will never be used.
          */
@@ -374,7 +378,7 @@ function fill_window(s: any) {
 
       more += _w_size;
     }
-    if (s.strm.avail_in === 0) {
+    if (s.strm!.avail_in === 0) {
       break;
     }
 
@@ -390,26 +394,26 @@ function fill_window(s: any) {
      * If there was sliding, more >= WSIZE. So in all cases, more >= 2.
      */
     //Assert(more >= 2, "more < 2");
-    n = read_buf(s.strm, s.window, s.strstart + s.lookahead, more);
+    n = read_buf(s.strm!, s.window!, s.strstart + s.lookahead, more);
     s.lookahead += n;
 
     /* Initialize the hash value now that we have some input: */
     if (s.lookahead + s.insert >= MIN_MATCH) {
       str = s.strstart - s.insert;
-      s.ins_h = s.window[str];
+      s.ins_h = s.window![str];
 
       /* UPDATE_HASH(s, s->ins_h, s->window[str + 1]); */
-      s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window[str + 1]) & s.hash_mask;
+      s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window![str + 1]) & s.hash_mask;
       //#if MIN_MATCH != 3
       //        Call update_hash() MIN_MATCH-3 more times
       //#endif
       while (s.insert) {
         /* UPDATE_HASH(s, s->ins_h, s->window[str + MIN_MATCH-1]); */
-        s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window[str + MIN_MATCH - 1]) &
+        s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window![str + MIN_MATCH - 1]) &
           s.hash_mask;
 
-        s.prev[str & s.w_mask] = s.head[s.ins_h];
-        s.head[s.ins_h] = str;
+        s.prev![str & s.w_mask] = s.head![s.ins_h];
+        s.head![s.ins_h] = str;
         str++;
         s.insert--;
         if (s.lookahead + s.insert < MIN_MATCH) {
@@ -420,7 +424,7 @@ function fill_window(s: any) {
     /* If the whole input has less than MIN_MATCH bytes, ins_h is garbage,
      * but this is not important since only literal bytes will be emitted.
      */
-  } while (s.lookahead < MIN_LOOKAHEAD && s.strm.avail_in !== 0);
+  } while (s.lookahead < MIN_LOOKAHEAD && s.strm!.avail_in !== 0);
 
   /* If the WIN_INIT bytes after the end of the current data have never been
    * written, then zero those bytes in order to avoid memory check reports of
@@ -469,7 +473,7 @@ function fill_window(s: any) {
  * NOTE: this function should be optimized to avoid extra copying from
  * window to pending_buf.
  */
-function deflate_stored(s: any, flush: any) {
+function deflate_stored(s: DeflateState, flush: number) {
   /* Stored blocks are limited to 0xffff bytes, pending_buf is limited
    * to pending_buf_size, and each stored block has a 5 byte header:
    */
@@ -507,7 +511,7 @@ function deflate_stored(s: any, flush: any) {
     s.lookahead = 0;
 
     /* Emit a stored block if pending_buf will be full: */
-    let max_start = s.block_start + max_block_size;
+    const max_start = s.block_start + max_block_size;
 
     if (s.strstart === 0 || s.strstart >= max_start) {
       /* strstart == 0 is possible when wraparound on 16-bit machine */
@@ -515,7 +519,7 @@ function deflate_stored(s: any, flush: any) {
       s.strstart = max_start;
       /*** FLUSH_BLOCK(s, 0); ***/
       flush_block_only(s, false);
-      if (s.strm.avail_out === 0) {
+      if (s.strm!.avail_out === 0) {
         return BS_NEED_MORE;
       }
       /***/
@@ -526,7 +530,7 @@ function deflate_stored(s: any, flush: any) {
     if (s.strstart - s.block_start >= (s.w_size - MIN_LOOKAHEAD)) {
       /*** FLUSH_BLOCK(s, 0); ***/
       flush_block_only(s, false);
-      if (s.strm.avail_out === 0) {
+      if (s.strm!.avail_out === 0) {
         return BS_NEED_MORE;
       }
       /***/
@@ -538,7 +542,7 @@ function deflate_stored(s: any, flush: any) {
   if (flush === STATUS.Z_FINISH) {
     /*** FLUSH_BLOCK(s, 1); ***/
     flush_block_only(s, true);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_FINISH_STARTED;
     }
     /***/
@@ -548,7 +552,7 @@ function deflate_stored(s: any, flush: any) {
   if (s.strstart > s.block_start) {
     /*** FLUSH_BLOCK(s, 0); ***/
     flush_block_only(s, false);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_NEED_MORE;
     }
     /***/
@@ -564,7 +568,7 @@ function deflate_stored(s: any, flush: any) {
  * new strings in the dictionary only for unmatched strings or for short
  * matches. It is used only for the fast compression options.
  */
-function deflate_fast(s: any, flush: any) {
+function deflate_fast(s: DeflateState, flush: number) {
   let hash_head; /* head of the hash chain */
   let bflush; /* set if current block must be flushed */
 
@@ -591,10 +595,10 @@ function deflate_fast(s: any, flush: any) {
     if (s.lookahead >= MIN_MATCH) {
       /*** INSERT_STRING(s, s.strstart, hash_head); ***/
       s.ins_h =
-        ((s.ins_h << s.hash_shift) ^ s.window[s.strstart + MIN_MATCH - 1]) &
+        ((s.ins_h << s.hash_shift) ^ s.window![s.strstart + MIN_MATCH - 1]) &
         s.hash_mask;
-      hash_head = s.prev[s.strstart & s.w_mask] = s.head[s.ins_h];
-      s.head[s.ins_h] = s.strstart;
+      hash_head = s.prev![s.strstart & s.w_mask] = s.head![s.ins_h];
+      s.head![s.ins_h] = s.strstart;
       /***/
     }
 
@@ -637,10 +641,11 @@ function deflate_fast(s: any, flush: any) {
           s.strstart++;
           /*** INSERT_STRING(s, s.strstart, hash_head); ***/
           s.ins_h =
-            ((s.ins_h << s.hash_shift) ^ s.window[s.strstart + MIN_MATCH - 1]) &
+            ((s.ins_h << s.hash_shift) ^
+              s.window![s.strstart + MIN_MATCH - 1]) &
             s.hash_mask;
-          hash_head = s.prev[s.strstart & s.w_mask] = s.head[s.ins_h];
-          s.head[s.ins_h] = s.strstart;
+          hash_head = s.prev![s.strstart & s.w_mask] = s.head![s.ins_h];
+          s.head![s.ins_h] = s.strstart;
           /***/
           /* strstart never exceeds WSIZE-MAX_MATCH, so there are
            * always MIN_MATCH bytes ahead.
@@ -650,9 +655,9 @@ function deflate_fast(s: any, flush: any) {
       } else {
         s.strstart += s.match_length;
         s.match_length = 0;
-        s.ins_h = s.window[s.strstart];
+        s.ins_h = s.window![s.strstart];
         /* UPDATE_HASH(s, s.ins_h, s.window[s.strstart+1]); */
-        s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window[s.strstart + 1]) &
+        s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window![s.strstart + 1]) &
           s.hash_mask;
 
         //#if MIN_MATCH != 3
@@ -666,7 +671,7 @@ function deflate_fast(s: any, flush: any) {
       /* No match, output a literal byte */
       //Tracevv((stderr,"%c", s.window[s.strstart]));
       /*** _tr_tally_lit(s, s.window[s.strstart], bflush); ***/
-      bflush = trees._tr_tally(s, 0, s.window[s.strstart]);
+      bflush = trees._tr_tally(s, 0, s.window![s.strstart]);
 
       s.lookahead--;
       s.strstart++;
@@ -674,17 +679,17 @@ function deflate_fast(s: any, flush: any) {
     if (bflush) {
       /*** FLUSH_BLOCK(s, 0); ***/
       flush_block_only(s, false);
-      if (s.strm.avail_out === 0) {
+      if (s.strm!.avail_out === 0) {
         return BS_NEED_MORE;
       }
       /***/
     }
   }
-  s.insert = ((s.strstart < (MIN_MATCH - 1)) ? s.strstart : MIN_MATCH - 1);
+  s.insert = (s.strstart < (MIN_MATCH - 1)) ? s.strstart : MIN_MATCH - 1;
   if (flush === STATUS.Z_FINISH) {
     /*** FLUSH_BLOCK(s, 1); ***/
     flush_block_only(s, true);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_FINISH_STARTED;
     }
     /***/
@@ -693,7 +698,7 @@ function deflate_fast(s: any, flush: any) {
   if (s.last_lit) {
     /*** FLUSH_BLOCK(s, 0); ***/
     flush_block_only(s, false);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_NEED_MORE;
     }
     /***/
@@ -706,7 +711,7 @@ function deflate_fast(s: any, flush: any) {
  * evaluation for matches: a match is finally adopted only if there is
  * no better match at the next window position.
  */
-function deflate_slow(s: any, flush: any) {
+function deflate_slow(s: DeflateState, flush: number) {
   let hash_head; /* head of hash chain */
   let bflush; /* set if current block must be flushed */
 
@@ -734,10 +739,10 @@ function deflate_slow(s: any, flush: any) {
     if (s.lookahead >= MIN_MATCH) {
       /*** INSERT_STRING(s, s.strstart, hash_head); ***/
       s.ins_h =
-        ((s.ins_h << s.hash_shift) ^ s.window[s.strstart + MIN_MATCH - 1]) &
+        ((s.ins_h << s.hash_shift) ^ s.window![s.strstart + MIN_MATCH - 1]) &
         s.hash_mask;
-      hash_head = s.prev[s.strstart & s.w_mask] = s.head[s.ins_h];
-      s.head[s.ins_h] = s.strstart;
+      hash_head = s.prev![s.strstart & s.w_mask] = s.head![s.ins_h];
+      s.head![s.ins_h] = s.strstart;
       /***/
     }
 
@@ -797,10 +802,11 @@ function deflate_slow(s: any, flush: any) {
         if (++s.strstart <= max_insert) {
           /*** INSERT_STRING(s, s.strstart, hash_head); ***/
           s.ins_h =
-            ((s.ins_h << s.hash_shift) ^ s.window[s.strstart + MIN_MATCH - 1]) &
+            ((s.ins_h << s.hash_shift) ^
+              s.window![s.strstart + MIN_MATCH - 1]) &
             s.hash_mask;
-          hash_head = s.prev[s.strstart & s.w_mask] = s.head[s.ins_h];
-          s.head[s.ins_h] = s.strstart;
+          hash_head = s.prev![s.strstart & s.w_mask] = s.head![s.ins_h];
+          s.head![s.ins_h] = s.strstart;
           /***/
         }
       } while (--s.prev_length !== 0);
@@ -811,7 +817,7 @@ function deflate_slow(s: any, flush: any) {
       if (bflush) {
         /*** FLUSH_BLOCK(s, 0); ***/
         flush_block_only(s, false);
-        if (s.strm.avail_out === 0) {
+        if (s.strm!.avail_out === 0) {
           return BS_NEED_MORE;
         }
         /***/
@@ -823,7 +829,7 @@ function deflate_slow(s: any, flush: any) {
        */
       //Tracevv((stderr,"%c", s->window[s->strstart-1]));
       /*** _tr_tally_lit(s, s.window[s.strstart-1], bflush); ***/
-      bflush = trees._tr_tally(s, 0, s.window[s.strstart - 1]);
+      bflush = trees._tr_tally(s, 0, s.window![s.strstart - 1]);
 
       if (bflush) {
         /*** FLUSH_BLOCK_ONLY(s, 0) ***/
@@ -832,7 +838,7 @@ function deflate_slow(s: any, flush: any) {
       }
       s.strstart++;
       s.lookahead--;
-      if (s.strm.avail_out === 0) {
+      if (s.strm!.avail_out === 0) {
         return BS_NEED_MORE;
       }
     } else {
@@ -848,7 +854,7 @@ function deflate_slow(s: any, flush: any) {
   if (s.match_available) {
     //Tracevv((stderr,"%c", s->window[s->strstart-1]));
     /*** _tr_tally_lit(s, s.window[s.strstart-1], bflush); ***/
-    bflush = trees._tr_tally(s, 0, s.window[s.strstart - 1]);
+    bflush = trees._tr_tally(s, 0, s.window![s.strstart - 1]);
 
     s.match_available = 0;
   }
@@ -856,7 +862,7 @@ function deflate_slow(s: any, flush: any) {
   if (flush === STATUS.Z_FINISH) {
     /*** FLUSH_BLOCK(s, 1); ***/
     flush_block_only(s, true);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_FINISH_STARTED;
     }
     /***/
@@ -865,7 +871,7 @@ function deflate_slow(s: any, flush: any) {
   if (s.last_lit) {
     /*** FLUSH_BLOCK(s, 0); ***/
     flush_block_only(s, false);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_NEED_MORE;
     }
     /***/
@@ -879,12 +885,12 @@ function deflate_slow(s: any, flush: any) {
  * one.  Do not maintain a hash table.  (It will be regenerated if this run of
  * deflate switches away from Z_RLE.)
  */
-function deflate_rle(s: any, flush: any) {
+function deflate_rle(s: DeflateState, flush: number) {
   let bflush; /* set if current block must be flushed */
   let prev; /* byte at distance one to match */
   let scan, strend; /* scan goes up to strend for length of run */
 
-  let _win = s.window;
+  const _win = s.window!;
 
   for (;;) {
     /* Make sure that we always have enough lookahead, except
@@ -940,7 +946,7 @@ function deflate_rle(s: any, flush: any) {
       /* No match, output a literal byte */
       //Tracevv((stderr,"%c", s->window[s->strstart]));
       /*** _tr_tally_lit(s, s.window[s.strstart], bflush); ***/
-      bflush = trees._tr_tally(s, 0, s.window[s.strstart]);
+      bflush = trees._tr_tally(s, 0, s.window![s.strstart]);
 
       s.lookahead--;
       s.strstart++;
@@ -948,7 +954,7 @@ function deflate_rle(s: any, flush: any) {
     if (bflush) {
       /*** FLUSH_BLOCK(s, 0); ***/
       flush_block_only(s, false);
-      if (s.strm.avail_out === 0) {
+      if (s.strm!.avail_out === 0) {
         return BS_NEED_MORE;
       }
       /***/
@@ -958,7 +964,7 @@ function deflate_rle(s: any, flush: any) {
   if (flush === STATUS.Z_FINISH) {
     /*** FLUSH_BLOCK(s, 1); ***/
     flush_block_only(s, true);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_FINISH_STARTED;
     }
     /***/
@@ -967,7 +973,7 @@ function deflate_rle(s: any, flush: any) {
   if (s.last_lit) {
     /*** FLUSH_BLOCK(s, 0); ***/
     flush_block_only(s, false);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_NEED_MORE;
     }
     /***/
@@ -979,7 +985,7 @@ function deflate_rle(s: any, flush: any) {
  * For Z_HUFFMAN_ONLY, do not look for matches.  Do not maintain a hash table.
  * (It will be regenerated if this run of deflate switches away from Huffman.)
  */
-function deflate_huff(s: any, flush: any) {
+function deflate_huff(s: DeflateState, flush: number) {
   let bflush; /* set if current block must be flushed */
 
   for (;;) {
@@ -998,13 +1004,13 @@ function deflate_huff(s: any, flush: any) {
     s.match_length = 0;
     //Tracevv((stderr,"%c", s->window[s->strstart]));
     /*** _tr_tally_lit(s, s.window[s.strstart], bflush); ***/
-    bflush = trees._tr_tally(s, 0, s.window[s.strstart]);
+    bflush = trees._tr_tally(s, 0, s.window![s.strstart]);
     s.lookahead--;
     s.strstart++;
     if (bflush) {
       /*** FLUSH_BLOCK(s, 0); ***/
       flush_block_only(s, false);
-      if (s.strm.avail_out === 0) {
+      if (s.strm!.avail_out === 0) {
         return BS_NEED_MORE;
       }
       /***/
@@ -1014,7 +1020,7 @@ function deflate_huff(s: any, flush: any) {
   if (flush === STATUS.Z_FINISH) {
     /*** FLUSH_BLOCK(s, 1); ***/
     flush_block_only(s, true);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_FINISH_STARTED;
     }
     /***/
@@ -1023,7 +1029,7 @@ function deflate_huff(s: any, flush: any) {
   if (s.last_lit) {
     /*** FLUSH_BLOCK(s, 0); ***/
     flush_block_only(s, false);
-    if (s.strm.avail_out === 0) {
+    if (s.strm!.avail_out === 0) {
       return BS_NEED_MORE;
     }
     /***/
@@ -1037,17 +1043,17 @@ function deflate_huff(s: any, flush: any) {
  * found for specific files.
  */
 class Config {
-  good_length: any;
-  max_lazy: any;
-  nice_length: any;
-  max_chain: any;
-  func: any;
+  good_length: number;
+  max_lazy: number;
+  nice_length: number;
+  max_chain: number;
+  func: (s: DeflateState, flush: number) => number;
   constructor(
-    good_length: any,
-    max_lazy: any,
-    nice_length: any,
-    max_chain: any,
-    func: any,
+    good_length: number,
+    max_lazy: number,
+    nice_length: number,
+    max_chain: number,
+    func: (s: DeflateState, flush: number) => number,
   ) {
     this.good_length = good_length;
     this.max_lazy = max_lazy;
@@ -1057,9 +1063,7 @@ class Config {
   }
 }
 
-let configuration_table: any;
-
-configuration_table = [
+const configuration_table = [
   /*      good lazy nice chain */
   new Config(0, 0, 0, 0, deflate_stored), /* 0 store only */
   new Config(4, 4, 8, 4, deflate_fast), /* 1 max speed, no lazy matches */
@@ -1077,11 +1081,11 @@ configuration_table = [
 /* ===========================================================================
  * Initialize the "longest match" routines for a new zlib stream
  */
-function lm_init(s: any) {
+function lm_init(s: DeflateState) {
   s.window_size = 2 * s.w_size;
 
   /*** CLEAR_HASH(s); ***/
-  zero(s.head); // Fill with NIL (= 0);
+  zero(s.head!); // Fill with NIL (= 0);
 
   /* Set the default configuration parameters:
    */
@@ -1102,7 +1106,7 @@ function lm_init(s: any) {
 export class DeflateState {
   strm: ZStream | null = null; /* pointer back to this zlib stream */
   status = 0; /* as the name implies */
-  pending_buf: any = null; /* output still pending */
+  pending_buf: Uint8Array | null = null; /* output still pending */
   pending_buf_size = 0; /* size of pending_buf */
   pending_out = 0; /* next pending byte to output to the stream */
   pending = 0; /* nb of bytes in the pending buffer */
@@ -1116,7 +1120,7 @@ export class DeflateState {
   w_bits = 0; /* log2(w_size)  (8..16) */
   w_mask = 0; /* w_size - 1 */
 
-  window: any = null;
+  window: Uint8Array | null = null;
   /* Sliding window. Input bytes are read into the second half of the window,
    * and move to the first half later to keep a dictionary of at least wSize
    * bytes. With this organization, matches are limited to a distance of
@@ -1129,13 +1133,13 @@ export class DeflateState {
    * is directly used as sliding window.
    */
 
-  prev: any = null;
+  prev: Uint16Array | null = null;
   /* Link to older string with same hash index. To limit the size of this
    * array to 64K, this link is maintained only for the last 32K strings.
    * An index in this array is thus a window index modulo 32K.
    */
 
-  head: any = null; /* Heads of the hash chains or NIL. */
+  head: Uint16Array | null = null; /* Heads of the hash chains or NIL. */
 
   ins_h = 0; /* hash index of string to be inserted */
   hash_size = 0; /* number of elements in hash table */
@@ -1206,9 +1210,9 @@ export class DeflateState {
   dyn_dtree = new Uint16Array((2 * D_CODES + 1) * 2);
   bl_tree = new Uint16Array((2 * BL_CODES + 1) * 2);
 
-  l_desc = null; /* desc. for literal tree */
-  d_desc = null; /* desc. for distance tree */
-  bl_desc = null; /* desc. for bit length tree */
+  l_desc: TreeDesc | null = null; /* desc. for literal tree */
+  d_desc: TreeDesc | null = null; /* desc. for distance tree */
+  bl_desc: TreeDesc | null = null; /* desc. for bit length tree */
 
   //ush bl_count[MAX_BITS+1];
   bl_count = new Uint16Array(MAX_BITS + 1);
@@ -1292,8 +1296,6 @@ export class DeflateState {
 }
 
 function deflateResetKeep(strm: ZStream) {
-  let s;
-
   if (!strm || !strm.state) {
     return err(strm, STATUS.Z_STREAM_ERROR.toString() as CODE);
   }
@@ -1301,7 +1303,7 @@ function deflateResetKeep(strm: ZStream) {
   strm.total_in = strm.total_out = 0;
   strm.data_type = Z_UNKNOWN;
 
-  s = strm.state;
+  const s = strm.state as DeflateState;
   s.pending = 0;
   s.pending_out = 0;
 
@@ -1309,7 +1311,7 @@ function deflateResetKeep(strm: ZStream) {
     s.wrap = -s.wrap;
     /* was made negative by deflate(..., Z_FINISH); */
   }
-  s.status = (s.wrap ? INIT_STATE : BUSY_STATE);
+  s.status = s.wrap ? INIT_STATE : BUSY_STATE;
   strm.adler = (s.wrap === 2)
     ? 0 // crc32(0, Z_NULL, 0)
     : 1; // adler32(0, Z_NULL, 0)
@@ -1319,9 +1321,9 @@ function deflateResetKeep(strm: ZStream) {
 }
 
 function deflateReset(strm: ZStream) {
-  let ret = deflateResetKeep(strm);
+  const ret = deflateResetKeep(strm);
   if (ret === Z_OK) {
-    lm_init(strm.state);
+    lm_init(strm.state as DeflateState);
   }
   return ret;
 }
@@ -1329,7 +1331,7 @@ function deflateReset(strm: ZStream) {
 export function deflateSetHeader(strm: ZStream, head: Header) {
   if (!strm || !strm.state) return Z_STREAM_ERROR;
   if (strm.state.wrap !== 2) return Z_STREAM_ERROR;
-  strm.state.gzhead = head;
+  (strm.state as DeflateState).gzhead = head;
   return Z_OK;
 }
 
@@ -1372,7 +1374,7 @@ export function deflateInit2(
   }
   /* until 256-byte window bug fixed */
 
-  let s = new DeflateState();
+  const s = new DeflateState();
 
   strm.state = s;
   s.strm = strm;
@@ -1417,6 +1419,7 @@ export function deflateInit2(
   return deflateReset(strm);
 }
 
+// deno-lint-ignore no-unused-vars
 function deflateInit(strm: ZStream, level: number) {
   return deflateInit2(
     strm,
@@ -1429,7 +1432,6 @@ function deflateInit(strm: ZStream, level: number) {
 }
 
 export function deflate(strm: ZStream, flush: number) {
-  let old_flush, s;
   let beg, val; // for gzip header write only
 
   if (
@@ -1439,7 +1441,7 @@ export function deflate(strm: ZStream, flush: number) {
     return strm ? err(strm, STATUS.Z_STREAM_ERROR as CODE) : Z_STREAM_ERROR;
   }
 
-  s = strm.state;
+  const s = strm.state as DeflateState;
 
   if (
     !strm.output ||
@@ -1455,7 +1457,7 @@ export function deflate(strm: ZStream, flush: number) {
   }
 
   s.strm = strm; /* just in case */
-  old_flush = s.last_flush;
+  const old_flush = s.last_flush;
   s.last_flush = flush;
 
   /* Write the header */
@@ -1504,7 +1506,7 @@ export function deflate(strm: ZStream, flush: number) {
           put_byte(s, (s.gzhead.extra.length >> 8) & 0xff);
         }
         if (s.gzhead.hcrc) {
-          strm.adler = crc32(strm.adler, s.pending_buf, s.pending, 0);
+          strm.adler = crc32(strm.adler, s.pending_buf!, s.pending, 0);
         }
         s.gzindex = 0;
         s.status = EXTRA_STATE;
@@ -1523,7 +1525,7 @@ export function deflate(strm: ZStream, flush: number) {
       } else {
         level_flags = 3;
       }
-      header |= (level_flags << 6);
+      header |= level_flags << 6;
       if (s.strstart !== 0) header |= PRESET_DICT;
       header += 31 - (header % 31);
 
@@ -1547,7 +1549,12 @@ export function deflate(strm: ZStream, flush: number) {
       while (s.gzindex < (s.gzhead!.extra.length & 0xffff)) {
         if (s.pending === s.pending_buf_size) {
           if (s.gzhead!.hcrc && s.pending > beg) {
-            strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+            strm.adler = crc32(
+              strm.adler,
+              s.pending_buf!,
+              s.pending - beg,
+              beg,
+            );
           }
           flush_pending(strm);
           beg = s.pending;
@@ -1559,7 +1566,7 @@ export function deflate(strm: ZStream, flush: number) {
         s.gzindex++;
       }
       if (s.gzhead!.hcrc && s.pending > beg) {
-        strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+        strm.adler = crc32(strm.adler, s.pending_buf!, s.pending - beg, beg);
       }
       if (s.gzindex === s.gzhead!.extra.length) {
         s.gzindex = 0;
@@ -1577,7 +1584,12 @@ export function deflate(strm: ZStream, flush: number) {
       do {
         if (s.pending === s.pending_buf_size) {
           if (s.gzhead!.hcrc && s.pending > beg) {
-            strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+            strm.adler = crc32(
+              strm.adler,
+              s.pending_buf!,
+              s.pending - beg,
+              beg,
+            );
           }
           flush_pending(strm);
           beg = s.pending;
@@ -1596,7 +1608,7 @@ export function deflate(strm: ZStream, flush: number) {
       } while (val !== 0);
 
       if (s.gzhead!.hcrc && s.pending > beg) {
-        strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+        strm.adler = crc32(strm.adler, s.pending_buf!, s.pending - beg, beg);
       }
       if (val === 0) {
         s.gzindex = 0;
@@ -1614,7 +1626,12 @@ export function deflate(strm: ZStream, flush: number) {
       do {
         if (s.pending === s.pending_buf_size) {
           if (s.gzhead!.hcrc && s.pending > beg) {
-            strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+            strm.adler = crc32(
+              strm.adler,
+              s.pending_buf!,
+              s.pending - beg,
+              beg,
+            );
           }
           flush_pending(strm);
           beg = s.pending;
@@ -1633,7 +1650,7 @@ export function deflate(strm: ZStream, flush: number) {
       } while (val !== 0);
 
       if (s.gzhead!.hcrc && s.pending > beg) {
-        strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+        strm.adler = crc32(strm.adler, s.pending_buf!, s.pending - beg, beg);
       }
       if (val === 0) {
         s.status = HCRC_STATE;
@@ -1695,9 +1712,9 @@ export function deflate(strm: ZStream, flush: number) {
     strm.avail_in !== 0 || s.lookahead !== 0 ||
     (flush !== STATUS.Z_NO_FLUSH && s.status !== FINISH_STATE)
   ) {
-    let bstate = (s.strategy === Z_HUFFMAN_ONLY)
+    const bstate = (s.strategy === STATUS.Z_HUFFMAN_ONLY)
       ? deflate_huff(s, flush)
-      : (s.strategy === Z_RLE
+      : (s.strategy === STATUS.Z_RLE
         ? deflate_rle(s, flush)
         : configuration_table[s.level].func(s, flush));
 
@@ -1777,14 +1794,12 @@ export function deflate(strm: ZStream, flush: number) {
   return s.pending !== 0 ? Z_OK : Z_STREAM_END;
 }
 
-export function deflateEnd(strm: ZStream): any {
-  let status;
-
+export function deflateEnd(strm: ZStream): string | number {
   if (!strm /*== Z_NULL*/ || !strm.state /*== Z_NULL*/) {
     return Z_STREAM_ERROR;
   }
 
-  status = strm.state.status;
+  const status = (strm.state as DeflateState).status;
   if (
     status !== INIT_STATE &&
     status !== EXTRA_STATE &&
@@ -1809,26 +1824,21 @@ export function deflateEnd(strm: ZStream): any {
 export function deflateSetDictionary(
   strm: ZStream,
   dictionary: Uint8Array,
-): any {
+): CODE {
   let dictLength = dictionary.length;
 
-  let s;
   let str, n;
-  let wrap;
-  let avail;
-  let next;
-  let input;
   let tmpDict;
 
   if (!strm /*== Z_NULL*/ || !strm.state /*== Z_NULL*/) {
-    return Z_STREAM_ERROR;
+    return Z_STREAM_ERROR.toString() as CODE;
   }
 
-  s = strm.state;
-  wrap = s.wrap;
+  const s = strm.state as DeflateState;
+  const wrap = s.wrap;
 
   if (wrap === 2 || (wrap === 1 && s.status !== INIT_STATE) || s.lookahead) {
-    return Z_STREAM_ERROR;
+    return Z_STREAM_ERROR.toString() as CODE;
   }
 
   /* when using zlib wrappers, compute Adler-32 for provided dictionary */
@@ -1857,9 +1867,9 @@ export function deflateSetDictionary(
     dictLength = s.w_size;
   }
   /* insert dictionary into window and hash */
-  avail = strm.avail_in;
-  next = strm.next_in;
-  input = strm.input;
+  const avail = strm.avail_in;
+  const next = strm.next_in;
+  const input = strm.input;
   strm.avail_in = dictLength;
   strm.next_in = 0;
   strm.input = dictionary;

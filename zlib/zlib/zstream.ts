@@ -1,3 +1,6 @@
+import type { DeflateState } from "./deflate.ts";
+import type { InflateState } from "./inflate.ts";
+
 export default class ZStream {
   /* next input byte */
   input: Uint8Array | null = null; // JS specific, because we have no pointers
@@ -16,7 +19,7 @@ export default class ZStream {
   /* last error message, NULL if no error */
   msg = "" /*Z_NULL*/;
   /* not visible by applications */
-  state: any = null;
+  state: InflateState | DeflateState | null = null;
   /* best guess about the data type: binary or text */
   data_type = 2 /*Z_UNKNOWN*/;
   /* adler32 value of the uncompressed data */

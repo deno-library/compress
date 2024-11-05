@@ -17,10 +17,10 @@ export function makeTable() {
 // Create table on load. Just 255 signed longs. Not a problem.
 const crcTable = makeTable();
 
-export function crc32(crc: any, buf: any, len: any, pos: any) {
-  let t = crcTable;
-  let end = pos + len;
-  let f = 0xFF;
+export function crc32(crc: number, buf: Uint8Array, len: number, pos: number) {
+  const t = crcTable;
+  const end = pos + len;
+  const f = 0xFF;
 
   crc ^= -1;
 

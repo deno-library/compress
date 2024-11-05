@@ -149,17 +149,22 @@ const dext = [
   64,
 ];
 
+interface inflateTableOption {
+  bits: number; 
+  //table_index: number;
+}
+
 export default function inflate_table(
-  type: any,
-  lens: any,
-  lens_index: any,
-  codes: any,
-  table: any,
-  table_index: any,
-  work: any,
-  opts: any,
-) {
-  let bits = opts.bits;
+  type: number,
+  lens: Uint16Array,
+  lens_index: number,
+  codes: number,
+  table: Uint32Array,
+  table_index: number,
+  work: Uint16Array,
+  opts: inflateTableOption,
+): number {
+  const bits = opts.bits;
   //here = opts.here; /* table entry for duplication */
 
   let len = 0; /* a code's length in bits */
@@ -174,14 +179,13 @@ export default function inflate_table(
   let incr; /* for incrementing code, index */
   let fill; /* index for replicating entries */
   let low; /* low bits for current root entry */
-  let mask; /* mask for low root bits */
   let next; /* next available space in table */
   let base = null; /* base value table to use */
   let base_index = 0;
   //  let shoextra;    /* extra bits table to use */
   let end; /* use base and extra for symbol > end */
-  let count = new Uint16Array(MAXBITS + 1); //[MAXBITS+1];    /* number of codes of each length */
-  let offs = new Uint16Array(MAXBITS + 1); //[MAXBITS+1];     /* offsets in table for each length */
+  const count = new Uint16Array(MAXBITS + 1); //[MAXBITS+1];    /* number of codes of each length */
+  const offs = new Uint16Array(MAXBITS + 1); //[MAXBITS+1];     /* offsets in table for each length */
   let extra = null;
   let extra_index = 0;
 
@@ -279,7 +283,7 @@ export default function inflate_table(
   drop = 0; /* current bits to drop from code for index */
   low = -1; /* trigger new sub-table when len > root */
   used = 1 << root; /* use root table entries */
-  mask = used - 1; /* mask for comparing low */
+  const mask = used - 1; /* mask for comparing low */
 
   /* check available table space */
   if (

@@ -1,4 +1,4 @@
-export default function adler32(adler: any, buf: any, len: any, pos: any) {
+export default function adler32(adler: number, buf: Uint8Array, len: number, pos: number) {
   let s1 = (adler & 0xffff) | 0;
   let s2 = ((adler >>> 16) & 0xffff) | 0;
   let n = 0;

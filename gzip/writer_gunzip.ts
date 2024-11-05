@@ -2,7 +2,7 @@ import { Crc32Stream, EventEmitter, writeAll } from "../deps.ts";
 import { concatUint8Array } from "../utils/uint8.ts";
 import { checkHeader, checkTail } from "./gzip.ts";
 import { Inflate } from "../zlib/mod.ts";
-import type { Writer as StdWriter } from "jsr:@std/io/types";
+import type { Writer as StdWriter } from "../deps.ts";
 
 type File = Deno.FsFile;
 

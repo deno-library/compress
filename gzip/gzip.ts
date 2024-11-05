@@ -45,7 +45,7 @@ const os = {
   "windows": 0,
 };
 
-const osCode = os[Deno.build.os] ?? 255;
+const osCode = os[Deno.build.os as keyof typeof os] ?? 255;
 export const DEFAULT_LEVEL = 6;
 
 function putByte(n: number, arr: number[]) {
