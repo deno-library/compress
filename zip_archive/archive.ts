@@ -1,5 +1,5 @@
 import type { compressInterface, uncompressInterface } from "../interface.ts";
-import { ensureFile, path } from "../deps.ts";
+import { path, exists } from "../deps.ts";
 import {
   terminateWorkers,
   ZipReader,
@@ -17,7 +17,7 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  await ensureFile(src);
+  await exists(src, { isFile: true });
   using srcFile = await Deno.open(src);
   const zipReader = new ZipReader(srcFile);
   try {
@@ -27,8 +27,7 @@ export async function uncompress(
       if (options?.debug) console.log(filePath);
       await Deno.mkdir(path.dirname(filePath), { recursive: true });
       if (entry.directory || !entry.getData) continue;
-      using destFile = await Deno.create(filePath);
-      await entry.getData(destFile.writable);
+      await entry.getData((await Deno.create(filePath)).writable);
     }
   } finally {
     await zipReader.close();

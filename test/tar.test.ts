@@ -1,11 +1,8 @@
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.129.0/testing/asserts.ts";
+import { assert, assertEquals } from "jsr:@std/assert";
 import { tar } from "../mod.ts";
 
 Deno.test("tar.compress file", async () => {
-  const src = "./test/tar/tar.txt";
+  const src = "./test/dir/root.txt";
   const dest = "./test.tar";
   try {
     await tar.compress(src, dest, { debug: true });
@@ -22,7 +19,7 @@ Deno.test("tar.compress file", async () => {
 });
 
 Deno.test("tar.compress folder", async () => {
-  const src = "./test/tar";
+  const src = "./test/dir";
   const dest = "./test.tar";
   try {
     await tar.compress(src, dest, { debug: true });
@@ -49,7 +46,7 @@ Deno.test("tar.uncompress", async () => {
   const landTxtSize = 5;
   const landTxtContent = "land\n";
   try {
-    await tar.uncompress(src, dest);
+    await tar.uncompress(src, dest, { debug: true });
     const stat = await Deno.lstat(landTxtPath);
     assertEquals(stat.size, landTxtSize);
     const buf = await Deno.readFile(landTxtPath);

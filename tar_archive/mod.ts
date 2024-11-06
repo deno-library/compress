@@ -1,4 +1,4 @@
-import { Buffer, copy, ensureDir, path, ensureFile } from "../deps.ts";
+import { Buffer, copy, ensureDir, exists, path } from "../deps.ts";
 import type { compressInterface, uncompressInterface } from "../interface.ts";
 import { Tar } from "jsr:@std/archive@0.225.4/tar";
 import { Untar } from "jsr:@std/archive@0.225.4/untar";
@@ -14,7 +14,7 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  await ensureFile(src);
+  await exists(src, { isFile: true });
   using reader = await Deno.open(src, { read: true });
   const untar = new Untar(reader);
   for await (const entry of untar) {

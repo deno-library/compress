@@ -1,5 +1,5 @@
 import type { compressInterface, uncompressInterface } from "../interface.ts";
-import { ensureFile, path } from "../deps.ts";
+import { path, exists } from "../deps.ts";
 import {
   type EntryMetaData,
   terminateWorkers,
@@ -18,7 +18,7 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  await ensureFile(src);
+  await exists(src, { isFile: true });
   for await (
     const entry of (await Deno.open(src))
       .readable

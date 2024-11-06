@@ -1,5 +1,5 @@
 import type { compressInterface, uncompressInterface } from "../interface.ts";
-import { path, ensureFile } from "../deps.ts";
+import { path, exists } from "../deps.ts";
 import { UntarStream } from "../deps.ts";
 import { TarStream, type TarStreamInput } from "../deps.ts";
 
@@ -14,16 +14,14 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  await ensureFile(src);
-  using srcFile = await Deno.open(src);
+  await exists(src, { isFile: true });
   for await (
-    const entry of srcFile.readable.pipeThrough(new UntarStream())
+    const entry of (await Deno.open(src)).readable.pipeThrough(new UntarStream())
   ) {
     const filePath = path.resolve(dest, entry.path);
     if (options?.debug) console.log(filePath);
     await Deno.mkdir(path.dirname(filePath), { recursive: true });
-    using destFile = await Deno.create(filePath);
-    await entry.readable?.pipeTo(destFile.writable);
+    await entry.readable?.pipeTo((await Deno.create(filePath)).writable);
   }
 }
 
