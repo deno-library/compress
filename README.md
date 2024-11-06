@@ -29,7 +29,7 @@ If you want to use the old API, you can do it
 // JSR
 import { tar } from "jsr:@deno-library/compress";
 // or
-// import { tar } from "jsr:@deno-library/compress@0.5.0";
+// import { tar } from "jsr:@deno-library/compress@0.5.1";
 // or
 // import { tar } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // or only import tar
