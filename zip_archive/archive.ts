@@ -4,7 +4,7 @@ import {
   terminateWorkers,
   ZipReader,
   ZipWriterStream,
-} from "jsr:@zip-js/zip-js";
+} from "../deps.ts";
 
 /**
  * Uncompresses a file.
