@@ -1,5 +1,9 @@
 ## Changelog
 
+### v0.5.2 - 2024.11.6
+
+- docs: Add symbol documentation to existing interfaces
+
 ### v0.5.1 - 2024.11.6
 
 - refactor(zip): Use `zip-js` instead of using a terminal

@@ -35,6 +35,12 @@ export async function uncompress(
   }
 }
 
+/**
+ * Compresses a file.
+ * @param {string} src - Source file path.
+ * @param {string} dest - Destination file path.
+ * @param {compressInterface} [options] - Optional parameters.
+ */
 export async function compress(
   src: string,
   dest: string,

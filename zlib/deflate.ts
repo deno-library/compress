@@ -22,6 +22,9 @@ export interface DeflateOptions {
   header?: zlibDeflate.Header; // Custom header
 }
 
+/**
+ * Required Options for the Deflate class.
+ */
 interface DeflateOptionsRequired {
   level: number;
   method: number;
