@@ -1,8 +1,8 @@
 export interface compressInterface {
-  excludeSrc?: boolean;
-  debug?: boolean;
+  excludeSrc?: boolean; // does not contain the src directory
+  debug?: boolean; // list the files and folders
 }
 
 export interface uncompressInterface {
-  debug?: boolean;
+  debug?: boolean; // list the files and folders
 }

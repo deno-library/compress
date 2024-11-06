@@ -1,4 +1,4 @@
-import { Buffer, copy, ensureDir, path } from "../deps.ts";
+import { Buffer, copy, ensureDir, path, ensureFile } from "../deps.ts";
 import type { compressInterface, uncompressInterface } from "../interface.ts";
 import { Tar } from "jsr:@std/archive@0.225.4/tar";
 import { Untar } from "jsr:@std/archive@0.225.4/untar";
@@ -14,7 +14,8 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  const reader = await Deno.open(src, { read: true });
+  await ensureFile(src);
+  using reader = await Deno.open(src, { read: true });
   const untar = new Untar(reader);
   for await (const entry of untar) {
     const filePath = path.resolve(dest, entry.fileName);
@@ -24,11 +25,9 @@ export async function uncompress(
       continue;
     }
     await ensureDir(path.dirname(filePath));
-    const file = await Deno.open(filePath, { write: true, create: true });
+    using file = await Deno.open(filePath, { write: true, create: true });
     await copy(entry, file);
-    await file.close();
   }
-  reader.close();
 }
 
 // iteratively
@@ -108,9 +107,8 @@ export async function compress(
       await appendFolder(src, folderName);
     }
   }
-  const writer = await Deno.open(dest, { write: true, create: true });
+  using writer = await Deno.open(dest, { write: true, create: true });
   await copy(tar.getReader(), writer);
-  writer.close();
 }
 
 // Recursive way

@@ -1,5 +1,10 @@
 ## Changelog
 
+### v0.5.1 - 2024.11.6
+
+- refactor(zip): Use `zip-js` instead of using a terminal
+- refactor(gzip): Optimize code with the keyword `using`
+
 ### v0.5.0 - 2024.11.5
 
 - refactor: Use `@std/tar` instead of `@std/archive` due to deprecation

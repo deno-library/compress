@@ -20,7 +20,7 @@ If you want to read and write files, you need the following [permissions](https:
 
 ### Definition
 
-v0.5.0
+v0.5.1
 Use `@std/tar` instead of `@std/archive` due to deprecation
 If you want to use the old API, you can do it
 > import { tar } from "jsr:@deno-library/compress/tar_archive/mod.ts";
@@ -31,9 +31,9 @@ import { tar } from "jsr:@deno-library/compress";
 // or
 // import { tar } from "jsr:@deno-library/compress@0.5.0";
 // or
-// import { tar } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { tar } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // or only import tar
-// import { tar } from "https://deno.land/x/compress@v0.5.0/tar/mod.ts";
+// import { tar } from "https://deno.land/x/compress@v0.5.1/tar/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean;      // does not contain the src directory
   debug?: boolean;           // list the files and folders
@@ -51,7 +51,7 @@ tar.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 // JSR
 import { tar } from "jsr:@deno-library/compress";
 // or
-// import { tar } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { tar } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // compress folder
 await tar.compress("./test", "./test.tar");
 // compress folder, exclude src directory
@@ -78,9 +78,9 @@ import {
   inflateRaw,
 } from "jsr:@deno-library/compress";
 // or
-// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // or only import deflate, inflate, deflateRaw, inflateRaw
-// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.5.0/zlib/mod.ts";
+// import { deflate, inflate, deflateRaw, inflateRaw } from "https://deno.land/x/compress@v0.5.1/zlib/mod.ts";
 const str = "hello world!";
 const bytes = new TextEncoder().encode(str);
 // with zlib header
@@ -123,9 +123,9 @@ Useful for reading and writing large files.
 ```ts
 import { GzipStream } from "jsr:@deno-library/compress";
 // or
-// import { GzipStream } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { GzipStream } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // or only import GzipStream
-// import { GzipStream } from "https://deno.land/x/compress@v0.5.0/gzip/mod.ts";
+// import { GzipStream } from "https://deno.land/x/compress@v0.5.1/gzip/mod.ts";
 const gzip = new GzipStream();
 gzip.on("progress", (progress: string) => {
   console.log(progress); // 0.00% => 100.00%
@@ -140,9 +140,9 @@ await gzip.uncompress("./big.mkv.gz", "./big.mkv");
 ```ts
 import { gunzipFile, gzipFile } from "jsr:@deno-library/compress";
 // or
-// import { gunzipFile, gzipFile } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { gunzipFile, gzipFile } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // or only import gzipFile, gunzipFile
-// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.5.0/gzip/mod.ts";
+// import { gzipFile, gunzipFile } from "https://deno.land/x/compress@v0.5.1/gzip/mod.ts";
 await gzipFile("./deno.txt", "./deno.txt.gz");
 await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```
@@ -155,9 +155,9 @@ await gunzipFile("./deno.txt.gz", "./deno.txt");
 ```ts
 import { gunzip, gzip } from "jsr:@deno-library/compress";
 // or
-// import { gunzip, gzip } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { gunzip, gzip } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // or only import gzip, gunzip
-// import { gzip, gunzip } from "https://deno.land/x/compress@v0.5.0/zlib/mod.ts";
+// import { gzip, gunzip } from "https://deno.land/x/compress@v0.5.1/zlib/mod.ts";
 // gzip
 const bytes = new TextEncoder().encode("hello");
 const compressed = gzip(bytes);
@@ -167,7 +167,7 @@ const decompressed = gunzip(compressed);
 
 ## `tgz`
 
-v0.5.0
+v0.5.1
 Use `@std/tar` instead of `@std/archive` due to deprecation
 If you want to use the old API, you can do it
 > import { tgz } from "jsr:@deno-library/compress/tgz_archive/mod.ts";
@@ -177,9 +177,9 @@ If you want to use the old API, you can do it
 ```ts
 import { tgz } from "jsr:@deno-library/compress";
 // or
-// import { tgz } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { tgz } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // or only import tgz
-// import { tgz } from "https://deno.land/x/compress@v0.5.0/tgz/mod.ts";
+// import { tgz } from "https://deno.land/x/compress@v0.5.1/tgz/mod.ts";
 export interface compressInterface {
   excludeSrc?: boolean;      // does not contain the src directory
   debug?: boolean;           // list the files and folders
@@ -196,7 +196,7 @@ tgz.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ```ts
 import { tgz } from "jsr:@deno-library/compress";
 // or
-// import { tgz } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { tgz } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // compress folder
 await tgz.compress("./test", "./test.tar.gz");
 // compress folder, exclude src directory
@@ -209,60 +209,40 @@ await tgz.uncompress("./test.tar.gz", "./dest");
 
 ## `zip`
 
-> code from `https://github.com/fakoua/deno-zip`
-
 ### Definition
 
 ```ts
 import { zip } from "jsr:@deno-library/compress";
 // or
-// import { zip } from "https://deno.land/x/compress@v0.5.0/mod.ts";
+// import { zip } from "https://deno.land/x/compress@v0.5.1/mod.ts";
 // or only import zip
-// import { zip } from "https://deno.land/x/compress@v0.5.0/zip/mod.ts";
+// import { zip } from "https://deno.land/x/compress@v0.5.1/zip/mod.ts";
 
 export interface compressInterface {
-  // Indicates whether to overwrite the existing archive file
-  overwrite?: boolean;
-  // An array of flags to customize the compression process
-  flags?: string[];
+  excludeSrc?: boolean;      // does not contain the src directory
+  debug?: boolean;           // list the files and folders
 }
-
 export interface uncompressInterface {
-  // Whether to overwrite existing files
-  overwrite?: boolean;
-  // Whether to include the file name in the destination path
-  includeFileName?: boolean;
+  debug?: boolean;           // list the files and folders
 }
-
-zip.compress(src, dest, options?: compressInterface): Promise<boolean>;
-zip.uncompress(src, dest, options?: uncompressInterface): Promise<string | false>;
+zip.compress(src, dest, options?: compressInterface): Promise<void>;
+zip.uncompress(src, dest, options?: uncompressInterface): Promise<void>;
 ```
 
 ### Example
 
 ```ts
-// zip From File
-console.log(await zip.compress("./myfiles")); //=> boolean
-console.log(await zip.compress("./mypicter.png", "new-dir/mypicter.zip")); //=> boolean
-console.log(
-  await zip.compress(["./mypicters", "./textpalne.txt"], "compressed.zip", {
-    overwrite: true,
-  })
-); //=> boolean
-
-// unZip From File
-console.log(await zip.uncompress("myfile.zip")); //=> ./
-console.log(await zip.uncompress("myfile.zip", "new-dir")); //=> new-dir
-console.log(
-  await zip.uncompress("myfile.zip", null, {
-    includeFileName: true,
-  })
-); //=> myfile
-console.log(
-  await zip.uncompress("myfile.zip", "new-dir", {
-    includeFileName: true,
-  })
-); //=> new-dir\myfile
+import { zip } from "jsr:@deno-library/compress";
+// or
+// import { zip } from "https://deno.land/x/compress@v0.5.1/mod.ts";
+// compress folder
+await zip.compress("./test", "./test.tar.gz");
+// compress folder, exclude src directory
+await zip.compress("./test", "./test.tar.gz", { excludeSrc: true });
+// compress file
+await zip.compress("./test.txt", "./test.tar.gz");
+// uncompress
+await zip.uncompress("./test.tar.gz", "./dest");
 ```
 
 # test

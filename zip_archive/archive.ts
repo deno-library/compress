@@ -1,10 +1,9 @@
 import type { compressInterface, uncompressInterface } from "../interface.ts";
 import { ensureFile, path } from "../deps.ts";
 import {
-  type EntryMetaData,
   terminateWorkers,
-  ZipReaderStream,
-  ZipWriter,
+  ZipReader,
+  ZipWriterStream,
 } from "jsr:@zip-js/zip-js";
 
 /**
@@ -19,40 +18,36 @@ export async function uncompress(
   options?: uncompressInterface,
 ): Promise<void> {
   await ensureFile(src);
-  for await (
-    const entry of (await Deno.open(src))
-      .readable
-      .pipeThrough(new ZipReaderStream())
-  ) {
-    const filePath = path.resolve(dest, entry.filename);
-    if (options?.debug) console.log(filePath);
-    await Deno.mkdir(path.dirname(filePath), { recursive: true });
-    if (entry.directory) continue;
-    await entry.readable?.pipeTo((await Deno.create(filePath)).writable);
+  using srcFile = await Deno.open(src);
+  const zipReader = new ZipReader(srcFile);
+  try {
+    const entries = await zipReader.getEntries();
+    for (const entry of entries) {
+      const filePath = path.resolve(dest, entry.filename);
+      if (options?.debug) console.log(filePath);
+      await Deno.mkdir(path.dirname(filePath), { recursive: true });
+      if (entry.directory || !entry.getData) continue;
+      using destFile = await Deno.create(filePath);
+      await entry.getData(destFile.writable);
+    }
+  } finally {
+    await zipReader.close();
+    await terminateWorkers();
   }
-  await terminateWorkers();
 }
 
-/**
- * Compresses a file.
- * @param {string} src - Source file path.
- * @param {string} dest - Destination file path.
- * @param {compressInterface} [options] - Optional parameters.
- */
 export async function compress(
   src: string,
   dest: string,
   options?: compressInterface,
 ): Promise<void> {
-  const zipWriter = new ZipWriter((await Deno.create(dest)).writable);
-  const inputs: Promise<EntryMetaData>[] = [];
+  const zipper = new ZipWriterStream();
+  zipper.readable.pipeTo((await Deno.create(dest)).writable);
+
   const stat = await Deno.lstat(src);
   if (stat.isFile) {
-    inputs.push(
-      zipWriter.add(path.basename(src), (await Deno.open(src)).readable, {
-        directory: false,
-        uncompressedSize: stat.size,
-      }),
+    (await Deno.open(src)).readable.pipeTo(
+      zipper.writable(path.basename(src)),
     );
     if (options?.debug) console.log(path.resolve(src));
   } else {
@@ -67,18 +62,14 @@ export async function compress(
             const fileName = prefix ? `${prefix}/${name}` : name;
             const filePath = path.resolve(folder, name);
             if (options?.debug) console.log(path.resolve(filePath));
-            const stat = await Deno.stat(filePath);
             if (isDirectory) {
-              inputs.push(zipWriter.add(`${fileName}/`, undefined, {
-                directory: true,
-              }));
+              emptyReadableStream().pipeTo(
+                zipper.writable(`${fileName}/`),
+              );
               nextLoopList.push([filePath, fileName]);
             } else {
-              inputs.push(
-                zipWriter.add(fileName, (await Deno.open(filePath)).readable, {
-                  directory: false,
-                  uncompressedSize: stat.size,
-                }),
+              (await Deno.open(filePath)).readable.pipeTo(
+                zipper.writable(fileName),
               );
             }
           }
@@ -91,25 +82,19 @@ export async function compress(
       await appendFolder(src);
     } else {
       const folderName = path.basename(src);
-      inputs.push(zipWriter.add(path.basename(`${folderName}/`), undefined, {
-        directory: true,
-      }));
+      emptyReadableStream().pipeTo(zipper.writable(`${folderName}/`));
       if (options?.debug) console.log(path.resolve(src));
       await appendFolder(src, folderName);
     }
   }
-
-  try {
-    await Promise.all(inputs);
-    await zipWriter.close();
-    // print progress
-    // await zipWriter.close(undefined, {
-    //   onprogress: (progress, total, entry) => {
-    //     console.log(progress, total, entry)
-    //     return undefined
-    //   }
-    // });
-  } finally {
-    await terminateWorkers();
-  }
+  await zipper.close();
+  await terminateWorkers();
 }
+
+const emptyReadableStream = () => {
+  return new ReadableStream({
+    start(controller) {
+      controller.close();
+    },
+  });
+};
