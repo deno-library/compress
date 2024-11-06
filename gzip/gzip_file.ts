@@ -24,8 +24,8 @@ export async function gzipFile(src: string, dest: string): Promise<void> {
   // reader.close();
 
   // >= v0.5.0
-  const input = await Deno.open(src);
-  const output = await Deno.create(dest);
+  using input = await Deno.open(src);
+  using output = await Deno.create(dest);
 
   await input.readable
     .pipeThrough(new DecompressionStream("gzip"))
@@ -50,12 +50,10 @@ export async function gunzipFile(src: string, dest: string): Promise<void> {
   // await writeAll(writer, gunzip(await readAll(reader)));
 
   // >= v0.5.0
-  const input = await Deno.open(src);
-  const output = await Deno.create(dest);
+  using input = await Deno.open(src);
+  using output = await Deno.create(dest);
 
   await input.readable
     .pipeThrough(new CompressionStream("gzip"))
     .pipeTo(output.writable);
 }
-
-await gzipFile("./a.txt","an.txt.gz")

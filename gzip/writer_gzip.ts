@@ -78,15 +78,19 @@ export default class Writer extends EventEmitter implements StdWriter {
     return readed;
   }
 
-  close(): void {
-    this.emit("bytesWritten", this.bytesWritten);
-    this.writer.close();
-  }
-
   private getTail() {
     const arr: number[] = [];
     putLong(parseInt(this.crc32Stream.crc32, 16), arr);
     putLong(this.bytesWritten, arr);
     return new Uint8Array(arr);
+  }
+
+  close(): void {
+    this.emit("bytesWritten", this.bytesWritten);
+    this.writer.close();
+  }
+
+  [Symbol.dispose]() {
+    this.close();
   }
 }

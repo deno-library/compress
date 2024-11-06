@@ -91,4 +91,8 @@ export default class Writer extends EventEmitter implements StdWriter {
     this.emit("bytesWritten", this.bytesWritten);
     this.writer.close();
   }
+
+  [Symbol.dispose]() {
+    this.close();
+  }
 }
