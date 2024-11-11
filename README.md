@@ -1,5 +1,7 @@
 # compress
 
+[![JSR Version](https://jsr.io/badges/@deno-library/compress)](https://jsr.io/@deno-library/compress)
+
 Utilities to compress and uncompress for Deno!
 
 - [x] `tar`
