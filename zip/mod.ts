@@ -44,6 +44,7 @@ export async function compress(
   dest: string,
   options?: compressInterface,
 ): Promise<void> {
+  await exists(src, { isFile: true });
   const zipWriter = new ZipWriter((await Deno.create(dest)).writable);
   const inputs: Promise<EntryMetaData>[] = [];
   const stat = await Deno.lstat(src);

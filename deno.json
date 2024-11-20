@@ -1,5 +1,5 @@
 {
     "name": "@deno-library/compress",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "exports": "./mod.ts"
 }

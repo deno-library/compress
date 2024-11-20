@@ -46,6 +46,7 @@ export async function compress(
   dest: string,
   options?: compressInterface,
 ): Promise<void> {
+  await exists(src, { isFile: true });
   const zipper = new ZipWriterStream();
   zipper.readable.pipeTo((await Deno.create(dest)).writable);
 

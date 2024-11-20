@@ -1,5 +1,9 @@
 ## Changelog
 
+### v0.5.3 - 2024.11.20
+
+- fix: zip.compress does not close the dest file if src does not exist[#19]
+
 ### v0.5.2 - 2024.11.6
 
 - docs: Add symbol documentation to existing interfaces
