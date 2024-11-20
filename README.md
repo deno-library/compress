@@ -1,6 +1,8 @@
 # compress
 
 [![JSR Version](https://jsr.io/badges/@deno-library/compress)](https://jsr.io/@deno-library/compress)
+[![deno.land/x/compress](https://deno.land/badge/compress/version)](https://deno.land/x/compress)
+[![LICENSE](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/deno-library/compress/blob/main/LICENSE)
 
 Utilities to compress and uncompress for Deno!
 
