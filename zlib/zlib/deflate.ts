@@ -83,6 +83,18 @@ const BS_FINISH_STARTED =
 const BS_FINISH_DONE = 4; /* finish done, accept no more input or output */
 const OS_CODE = 0x03; // Unix :) . Don't detect, use this default.
 
+/**
+ * Represents the structure of a header used in a specific context (e.g., file format, network protocol).
+ *
+ * @interface Header
+ * @property {boolean} text - Indicates whether the file is a text file.
+ * @property {number} time - The modification time of the file, typically represented as a Unix timestamp.
+ * @property {number} os - The operating system on which the file was created or last modified.
+ * @property {number[]} extra - An array of additional data fields, often used for extended attributes or metadata.
+ * @property {string} name - The name of the file.
+ * @property {string} comment - A comment associated with the file, often used for descriptive purposes.
+ * @property {boolean} hcrc - Indicates whether the header includes a CRC (Cyclic Redundancy Check) for integrity verification.
+ */
 export interface Header {
   text: boolean;
   time: number;
@@ -1103,6 +1115,13 @@ function lm_init(s: DeflateState) {
   s.ins_h = 0;
 }
 
+/**
+ * Represents the state of the deflate compression process.
+ *
+ * This class holds all the necessary information and buffers required for the
+ deflate compression algorithm, including the sliding window, hash tables, and
+ * various control variables.
+ */
 export class DeflateState {
   strm: ZStream | null = null; /* pointer back to this zlib stream */
   status = 0; /* as the name implies */
@@ -1328,6 +1347,18 @@ function deflateReset(strm: ZStream) {
   return ret;
 }
 
+/**
+ * Sets the gzip header for the deflate stream.
+ *
+ * This function sets the gzip header information for the deflate stream. It checks if the stream and its state are valid,
+ * and if the stream is configured to use gzip wrapping. If these conditions are met, it assigns the provided header to the
+ * stream's state.
+ *
+ * @param {ZStream} strm - The deflate stream object.
+ * @param {Header} head - The gzip header information to set.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or `Z_STREAM_ERROR` if the stream or its state is invalid,
+ *                     or if the stream is not configured to use gzip wrapping.
+ */
 export function deflateSetHeader(strm: ZStream, head: Header) {
   if (!strm || !strm.state) return Z_STREAM_ERROR;
   if (strm.state.wrap !== 2) return Z_STREAM_ERROR;
@@ -1335,6 +1366,20 @@ export function deflateSetHeader(strm: ZStream, head: Header) {
   return Z_OK;
 }
 
+/**
+ * Initializes the deflate compression stream with specified parameters.
+ *
+ * This function initializes the deflate stream with the given compression level, method, window bits, memory level, and strategy.
+ * It performs various checks to ensure the parameters are valid and sets up the internal state of the deflate stream.
+ *
+ * @param {ZStream} strm - The deflate stream object to initialize.
+ * @param {number} level - The compression level (0-9, or Z_DEFAULT_COMPRESSION).
+ * @param {number} method - The compression method (must be Z_DEFLATED).
+ * @param {number} windowBits - The number of bits in the window (8-15, or -8 to -15 to suppress the zlib wrapper, or 24-31 to write a gzip wrapper).
+ * @param {number} memLevel - The memory level (1-9).
+ * @param {number} strategy - The compression strategy (0-3, or Z_DEFAULT_STRATEGY).
+ * @returns {CODE} - Returns `Z_OK` if initialization is successful, or an error code if any of the parameters are invalid.
+ */
 export function deflateInit2(
   strm: ZStream,
   level: number,
@@ -1431,6 +1476,17 @@ function deflateInit(strm: ZStream, level: number) {
   );
 }
 
+/**
+ * Performs deflate compression on the input data.
+ *
+ * This function processes the input data and performs deflate compression according to the specified flush mode.
+ * It handles various states of the deflate process, including writing headers, processing extra data, names, comments,
+ * and finishing the compression.
+ *
+ * @param {ZStream} strm - The deflate stream object.
+ * @param {number} flush - The flush mode (e.g., Z_NO_FLUSH, Z_FINISH).
+ * @returns {string | number} - Returns `Z_OK` if the operation is successful, or an error code if there are issues with the stream or input.
+ */
 export function deflate(strm: ZStream, flush: number) {
   let beg, val; // for gzip header write only
 
@@ -1794,6 +1850,16 @@ export function deflate(strm: ZStream, flush: number) {
   return s.pending !== 0 ? Z_OK : Z_STREAM_END;
 }
 
+/**
+ * Cleans up and ends the deflate compression process.
+ *
+ * This function cleans up the resources used by the deflate stream and sets the stream's state to null.
+ * It checks if the stream and its state are valid and ensures that the stream is in a valid state to be ended.
+ *
+ * @param {ZStream} strm - The deflate stream object to clean up.
+ * @returns {string | number} - Returns `Z_OK` if the cleanup is successful, or an error code if the stream or its state is invalid,
+ *                              or if the stream is in an invalid state.
+ */
 export function deflateEnd(strm: ZStream): string | number {
   if (!strm /*== Z_NULL*/ || !strm.state /*== Z_NULL*/) {
     return Z_STREAM_ERROR;

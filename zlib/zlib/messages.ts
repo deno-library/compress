@@ -1,3 +1,9 @@
+/**
+ * Maps error codes to their corresponding error messages.
+ *
+ * This object provides a mapping from integer error codes to human-readable error messages.
+ * These messages can be used to provide more detailed feedback about the status of operations.
+ */
 export const message = {
   2: "need dictionary", /* Z_NEED_DICT       2  */
   1: "stream end", /* Z_STREAM_END      1  */
@@ -10,4 +16,9 @@ export const message = {
   "-6": "incompatible version", /* Z_VERSION_ERROR (-6) */
 };
 
+/**
+ * Type representing the possible error codes.
+ *
+ * This type defines the set of valid error codes that can be returned by various functions in the compression/decompression process.
+ */
 export type CODE = 2 | 1 | 0 | "-1" | "-2" | "-3" | "-4" | "-5" | "-6";

@@ -154,6 +154,21 @@ interface inflateTableOption {
   //table_index: number;
 }
 
+/**
+ * Generates a Huffman table for the inflate process.
+ *
+ * This function constructs a Huffman table based on the given code lengths and other parameters. It is used during the inflation (decompression) process to decode the compressed data.
+ *
+ * @param {number} type - The type of table to generate (e.g., CODES, LENS, DISTS).
+ * @param {Uint16Array} lens - An array of code lengths.
+ * @param {number} lens_index - The starting index in the `lens` array.
+ * @param {number} codes - The number of codes.
+ * @param {Uint32Array} table - The table to be filled with Huffman codes.
+ * @param {number} table_index - The starting index in the `table` array.
+ * @param {Uint16Array} work - A work array used for sorting.
+ * @param {inflateTableOption} opts - Options for the table generation.
+ * @returns {number} - Returns `0` if the operation is successful, or an error code if there are issues with the input parameters or the generated table.
+ */
 export default function inflate_table(
   type: number,
   lens: Uint16Array,

@@ -247,11 +247,37 @@ let static_l_desc: StaticTreeDesc;
 let static_d_desc: StaticTreeDesc;
 let static_bl_desc: StaticTreeDesc;
 
+/**
+ * Represents a tree descriptor used in the compression process.
+ *
+ * This class encapsulates the dynamic tree, the maximum code with a non-zero frequency, and the corresponding static tree.
+ * It is used to manage and manipulate the trees during the compression and decompression processes.
+ */
 export class TreeDesc {
-  dyn_tree: Uint16Array; /* the dynamic tree */
-  max_code: number; /* largest code with non zero frequency */
-  stat_desc: StaticTreeDesc; /* the corresponding static tree */
+  /**
+   * The dynamic tree used in the compression process.
+   * @type {Uint16Array}
+   */
+  dyn_tree: Uint16Array;
 
+  /**
+   * The largest code with a non-zero frequency in the dynamic tree.
+   * @type {number}
+   */
+  max_code: number;
+
+  /**
+   * The corresponding static tree used in the compression process.
+   * @type {StaticTreeDesc}
+   */
+  stat_desc: StaticTreeDesc;
+
+  /**
+   * Constructs a new TreeDesc instance.
+   *
+   * @param {Uint16Array} dyn_tree - The dynamic tree.
+   * @param {StaticTreeDesc} stat_desc - The corresponding static tree.
+   */
   constructor(dyn_tree: Uint16Array, stat_desc: StaticTreeDesc) {
     this.dyn_tree = dyn_tree; /* the dynamic tree */
     this.max_code = 0; /* largest code with non zero frequency */

@@ -1,5 +1,9 @@
 ## Changelog
 
+### v0.5.5 - 2024.11.20
+
+- fix: fix exists usage error
+
 ### v0.5.4 - 2024.11.20
 
 - fix: zip.compress does not close the dest file if src does not exist[#19]

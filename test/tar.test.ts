@@ -6,7 +6,7 @@ Deno.test("tar.compress file", async () => {
   const dest = "./test.tar";
   try {
     await tar.compress(src, dest, { debug: true });
-    const stat = await Deno.lstat(dest);
+    const stat = await Deno.stat(dest);
     /**
      * 2048 = 512 (header) + 512 (content) + 1024 (footer)
      */
@@ -23,7 +23,7 @@ Deno.test("tar.compress folder", async () => {
   const dest = "./test.tar";
   try {
     await tar.compress(src, dest, { debug: true });
-    const stat = await Deno.lstat(dest);
+    const stat = await Deno.stat(dest);
     /**
      * 4096 = 512 (header) + 0 (content) +  // tar folder
      * 512 (header) + 512 (content) +       // tar.txt
@@ -47,7 +47,7 @@ Deno.test("tar.uncompress", async () => {
   const landTxtContent = "land\n";
   try {
     await tar.uncompress(src, dest, { debug: true });
-    const stat = await Deno.lstat(landTxtPath);
+    const stat = await Deno.stat(landTxtPath);
     assertEquals(stat.size, landTxtSize);
     const buf = await Deno.readFile(landTxtPath);
     const content = new TextDecoder().decode(buf);

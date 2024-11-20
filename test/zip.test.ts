@@ -6,7 +6,7 @@ Deno.test("zip.compress file", async () => {
   const dest = "./test.zip";
   try {
     await zip.compress(src, dest, { debug: true });
-    const stat = await Deno.lstat(dest);
+    const stat = await Deno.stat(dest);
     assertEquals(stat.size, 255);
     await Deno.remove(dest);
   } catch (error) {
@@ -20,7 +20,7 @@ Deno.test("zip.compress folder", async () => {
   const dest = "./deno.zip";
   try {
     await zip.compress(src, dest, { debug: true });
-    const stat = await Deno.lstat(dest);
+    const stat = await Deno.stat(dest);
     assertEquals(stat.size, 943);
     await Deno.remove(dest);
   } catch (error) {

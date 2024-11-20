@@ -43,4 +43,10 @@ enum STATUS {
   Z_DEFLATED = 8,
   //Z_NULL=                 null // Use -1 or null inline, depending on var type
 }
+
+/**
+ * Enum representing various statuses and constants used in the compression and decompression process.
+ *
+ * This enum defines the allowed flush values, return codes, compression levels, strategies, data types, and the compression method.
+ */
 export default STATUS;

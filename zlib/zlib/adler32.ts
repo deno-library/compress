@@ -1,3 +1,15 @@
+/**
+ * Computes the Adler-32 checksum.
+ *
+ * The Adler-32 is a checksum algorithm which may be used to validate data integrity.
+ * This algorithm divides the input data into two parts for calculation, resulting in a final 32-bit checksum.
+ *
+ * @param {number} adler - The initial Adler-32 value, usually set to 1.
+ * @param {Uint8Array} buf - The buffer containing the data to be processed.
+ * @param {number} len - The number of bytes from the buffer to process.
+ * @param {number} pos - The starting position in the buffer.
+ * @returns {number} The computed Adler-32 checksum.
+ */
 export default function adler32(adler: number, buf: Uint8Array, len: number, pos: number) {
   let s1 = (adler & 0xffff) | 0;
   let s2 = ((adler >>> 16) & 0xffff) | 0;

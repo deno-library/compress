@@ -90,63 +90,231 @@ function zswap32(q: number) {
     ((q & 0xff) << 24));
 }
 
+/**
+ * Represents the state of the inflate process.
+ *
+ * This class encapsulates the various state variables and buffers used during the decompression process.
+ */
 export class InflateState {
-  mode = 0; /* current inflate mode */
-  last = 0; /* true if processing last block */
-  wrap = 0; /* bit 0 true for zlib, bit 1 true for gzip */
-  havedict = false; /* true if dictionary provided */
-  flags = 0; /* gzip header method and flags (0 if zlib) */
-  dmax = 0; /* zlib header max distance (INFLATE_STRICT) */
-  check = 0; /* protected copy of check value */
-  total = 0; /* protected copy of output count */
-  head: GZheader | null = null; /* where to save gzip header information */
+  /**
+   * Current inflate mode.
+   * @type {number}
+   */
+  mode = 0;
 
-  /* sliding window */
-  wbits = 0; /* log base 2 of requested window size */
-  wsize = 0; /* window size or zero if not using window */
-  whave = 0; /* valid bytes in the window */
-  wnext = 0; /* window write index */
-  window: Uint8Array | null = null; /* allocated sliding window, if needed */
+  /**
+   * True if processing the last block.
+   * @type {number}
+   */
+  last = 0;
 
-  /* bit accumulator */
-  hold = 0; /* input bit accumulator */
-  bits = 0; /* number of bits in "in" */
+  /**
+   * Bit 0 true for zlib, bit 1 true for gzip.
+   * @type {number}
+   */
+  wrap = 0;
 
-  /* for string and stored block copying */
-  length = 0; /* literal or length of data to copy */
-  offset = 0; /* distance back to copy string from */
+  /**
+   * True if a dictionary has been provided.
+   * @type {boolean}
+   */
+  havedict = false;
 
-  /* for table and code decoding */
-  extra = 0; /* extra bits needed */
+  /**
+   * Gzip header method and flags (0 if zlib).
+   * @type {number}
+   */
+  flags = 0;
 
-  /* fixed and dynamic code tables */
-  lencode: Uint32Array | null = null; /* starting table for length/literal codes */
-  distcode: Uint32Array | null = null; /* starting table for distance codes */
-  lenbits = 0; /* index bits for lencode */
-  distbits = 0; /* index bits for distcode */
+  /**
+   * Maximum distance in the zlib header (INFLATE_STRICT).
+   * @type {number}
+   */
+  dmax = 0;
 
-  /* dynamic table building */
-  ncode = 0; /* number of code length code lengths */
-  nlen = 0; /* number of length code lengths */
-  ndist = 0; /* number of distance code lengths */
-  have = 0; /* number of code lengths in lens[] */
-  next = null; /* next available space in codes[] */
+  /**
+   * Protected copy of the check value.
+   * @type {number}
+   */
+  check = 0;
 
-  lens = new Uint16Array(320); /* temporary storage for code lengths */
-  work = new Uint16Array(288); /* work area for code table building */
+  /**
+   * Protected copy of the output count.
+   * @type {number}
+   */
+  total = 0;
 
-  /*
-   because we don't have pointers in js, we use lencode and distcode directly
-   as buffers so we don't need codes
-  */
-  //codes = new Uint32Array(ENOUGH);       /* space for code tables */
-  lendyn: Uint32Array | null = null; /* dynamic table for length/literal codes (JS specific) */
-  distdyn: Uint32Array | null = null; /* dynamic table for distance codes (JS specific) */
-  sane = 0; /* if false, allow invalid distance too far */
-  back = 0; /* bits back of last unprocessed length/lit */
-  was = 0; /* initial length of match */
+  /**
+   * Where to save gzip header information.
+   * @type {GZheader | null}
+   */
+  head: GZheader | null = null;
+
+  /**
+   * Log base 2 of the requested window size.
+   * @type {number}
+   */
+  wbits = 0;
+
+  /**
+   * Window size or zero if not using a window.
+   * @type {number}
+   */
+  wsize = 0;
+
+  /**
+   * Valid bytes in the window.
+   * @type {number}
+   */
+  whave = 0;
+
+  /**
+   * Window write index.
+   * @type {number}
+   */
+  wnext = 0;
+
+  /**
+   * Allocated sliding window, if needed.
+   * @type {Uint8Array | null}
+   */
+  window: Uint8Array | null = null;
+
+  /**
+   * Input bit accumulator.
+   * @type {number}
+   */
+  hold = 0;
+
+  /**
+   * Number of bits in "hold".
+   * @type {number}
+   */
+  bits = 0;
+
+  /**
+   * Literal or length of data to copy.
+   * @type {number}
+   */
+  length = 0;
+
+  /**
+   * Distance back to copy string from.
+   * @type {number}
+   */
+  offset = 0;
+
+  /**
+   * Extra bits needed.
+   * @type {number}
+   */
+  extra = 0;
+
+  /**
+   * Starting table for length/literal codes.
+   * @type {Uint32Array | null}
+   */
+  lencode: Uint32Array | null = null;
+
+  /**
+   * Starting table for distance codes.
+   * @type {Uint32Array | null}
+   */
+  distcode: Uint32Array | null = null;
+
+  /**
+   * Index bits for lencode.
+   * @type {number}
+   */
+  lenbits = 0;
+
+  /**
+   * Index bits for distcode.
+   * @type {number}
+   */
+  distbits = 0;
+
+  /**
+   * Number of code length code lengths.
+   * @type {number}
+   */
+  ncode = 0;
+
+  /**
+   * Number of length code lengths.
+   * @type {number}
+   */
+  nlen = 0;
+
+  /**
+   * Number of distance code lengths.
+   * @type {number}
+   */
+  ndist = 0;
+
+  /**
+   * Number of code lengths in lens[].
+   * @type {number}
+   */
+  have = 0;
+
+  /**
+   * Next available space in codes[].
+   * @type {any | null}
+   */
+  next = null;
+
+  /**
+   * Temporary storage for code lengths.
+   * @type {Uint16Array}
+   */
+  lens = new Uint16Array(320);
+
+  /**
+   * Work area for code table building.
+   * @type {Uint16Array}
+   */
+  work = new Uint16Array(288);
+
+  /**
+   * Dynamic table for length/literal codes (JS specific).
+   * @type {Uint32Array | null}
+   */
+  lendyn: Uint32Array | null = null;
+
+  /**
+   * Dynamic table for distance codes (JS specific).
+   * @type {Uint32Array | null}
+   */
+  distdyn: Uint32Array | null = null;
+
+  /**
+   * If false, allow invalid distance too far.
+   * @type {number}
+   */
+  sane = 0;
+
+  /**
+   * Bits back of last unprocessed length/lit.
+   * @type {number}
+   */
+  back = 0;
+
+  /**
+   * Initial length of match.
+   * @type {number}
+   */
+  was = 0;
 }
 
+/**
+ * Resets the inflate state while keeping the allocated memory.
+ *
+ * This function resets the state of the inflate process, but keeps the allocated memory to avoid reallocation.
+ *
+ * @param {ZStream} strm - The zlib stream object.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or `Z_STREAM_ERROR` if the stream is invalid.
+ */
 export function inflateResetKeep(strm: ZStream) {
   if (!strm || !strm.state) return Z_STREAM_ERROR;
   const state = strm.state as InflateState;
@@ -173,6 +341,14 @@ export function inflateResetKeep(strm: ZStream) {
   return Z_OK;
 }
 
+/**
+ * Resets the inflate state and frees the window buffer if it exists.
+ *
+ * This function resets the state of the inflate process and frees the window buffer if it exists.
+ *
+ * @param {ZStream} strm - The zlib stream object.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or `Z_STREAM_ERROR` if the stream is invalid.
+ */
 export function inflateReset(strm: ZStream) {
   if (!strm || !strm.state) return Z_STREAM_ERROR;
   const state = strm.state as InflateState;
@@ -182,6 +358,15 @@ export function inflateReset(strm: ZStream) {
   return inflateResetKeep(strm);
 }
 
+/**
+ * Resets the inflate state with a specified window size.
+ *
+ * This function resets the state of the inflate process with a specified window size and wrap settings.
+ *
+ * @param {ZStream} strm - The zlib stream object.
+ * @param {number} windowBits - The number of window bits.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or an error code if there are issues with the window bits or memory allocation.
+ */
 export function inflateReset2(strm: ZStream, windowBits: number) {
   let wrap;
 
@@ -214,6 +399,15 @@ export function inflateReset2(strm: ZStream, windowBits: number) {
   return inflateReset(strm);
 }
 
+/**
+ * Initializes the inflate state with a specified window size.
+ *
+ * This function initializes the state of the inflate process with a specified window size and wrap settings.
+ *
+ * @param {ZStream} strm - The zlib stream object.
+ * @param {number} windowBits - The number of window bits.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or an error code if there are issues with memory allocation.
+ */
 export function inflateInit2(strm: ZStream, windowBits: number) {
   if (!strm) return Z_STREAM_ERROR;
   //strm.msg = Z_NULL;                 /* in case we return an error */
@@ -231,6 +425,14 @@ export function inflateInit2(strm: ZStream, windowBits: number) {
   return ret;
 }
 
+/**
+ * Initializes the inflate state with the default window size.
+ *
+ * This function initializes the state of the inflate process with the default window size.
+ *
+ * @param {ZStream} strm - The zlib stream object.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or an error code if there are issues with memory allocation.
+ */
 export function inflateInit(strm: ZStream) {
   return inflateInit2(strm, DEF_WBITS);
 }
@@ -1481,6 +1683,14 @@ export function inflate(strm: ZStream, flush: number) {
   return ret;
 }
 
+/**
+ * Cleans up and frees the resources associated with the inflate process.
+ *
+ * This function is called to release the resources used by the inflate process, including the state and window buffers.
+ *
+ * @param {ZStream} strm - The zlib stream object.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or `Z_STREAM_ERROR` if the stream is invalid.
+ */
 export function inflateEnd(strm: ZStream) {
   if (!strm || !strm.state /*|| strm->zfree == (free_func)0*/) {
     return Z_STREAM_ERROR;
@@ -1494,6 +1704,15 @@ export function inflateEnd(strm: ZStream) {
   return Z_OK;
 }
 
+/**
+ * Retrieves the gzip header from the inflate process.
+ *
+ * This function is used to obtain the gzip header information during the inflate process. It checks the state and saves the header structure.
+ *
+ * @param {ZStream} strm - The zlib stream object.
+ * @param {GZheader} head - The gzip header structure to be filled.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or `Z_STREAM_ERROR` if the stream is invalid or the header is not available.
+ */
 export function inflateGetHeader(strm: ZStream, head: GZheader) {
   /* check state */
   if (!strm || !strm.state) return Z_STREAM_ERROR;
@@ -1506,6 +1725,16 @@ export function inflateGetHeader(strm: ZStream, head: GZheader) {
   return Z_OK;
 }
 
+/**
+ * Sets the dictionary for the inflate process.
+ *
+ * This function sets the dictionary to be used during the inflation (decompression) process. It checks the state of the stream,
+ * verifies the dictionary identifier, and updates the window with the dictionary data.
+ *
+ * @param {ZStream} strm - The zlib stream object.
+ * @param {Uint8Array} dictionary - The dictionary to be set.
+ * @returns {number} - Returns `Z_OK` if the operation is successful, or an error code if there are issues with the stream or dictionary.
+ */
 export function inflateSetDictionary(strm: ZStream, dictionary: Uint8Array) {
   const dictLength = dictionary.length;
 

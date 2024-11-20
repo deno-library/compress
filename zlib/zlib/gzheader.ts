@@ -1,3 +1,9 @@
+/**
+ * Represents the gzip header structure.
+ *
+ * This class encapsulates the fields and properties of a gzip header, which are used during the gzip compression and decompression processes.
+ * It includes various metadata fields such as text flag, modification time, extra flags, operating system, extra field, file name, comment, header CRC, and completion status.
+ */
 export default class GZheader {
   /* true if compressed data believed to be text */
   text: number = 0;

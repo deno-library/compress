@@ -1,5 +1,5 @@
 import type { compressInterface, uncompressInterface } from "../interface.ts";
-import { path, exists } from "../deps.ts";
+import { path } from "../deps.ts";
 import {
   type EntryMetaData,
   terminateWorkers,
@@ -18,11 +18,13 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  await exists(src, { isFile: true });
+  const stat = await Deno.stat(src);
+  if(stat.isDirectory) {
+    throw new Error("The source path is a directory, not a file: ${src}")
+  }
+  using srcFile = await Deno.open(src);
   for await (
-    const entry of (await Deno.open(src))
-      .readable
-      .pipeThrough(new ZipReaderStream())
+    const entry of srcFile.readable.pipeThrough(new ZipReaderStream())
   ) {
     const filePath = path.resolve(dest, entry.filename);
     if (options?.debug) console.log(filePath);
@@ -44,10 +46,10 @@ export async function compress(
   dest: string,
   options?: compressInterface,
 ): Promise<void> {
-  await exists(src, { isFile: true });
+  const stat = await Deno.stat(src);
   const zipWriter = new ZipWriter((await Deno.create(dest)).writable);
   const inputs: Promise<EntryMetaData>[] = [];
-  const stat = await Deno.lstat(src);
+  
   if (stat.isFile) {
     inputs.push(
       zipWriter.add(path.basename(src), (await Deno.open(src)).readable, {

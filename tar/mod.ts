@@ -1,5 +1,5 @@
 import type { compressInterface, uncompressInterface } from "../interface.ts";
-import { path, exists } from "../deps.ts";
+import { path } from "../deps.ts";
 import { UntarStream } from "../deps.ts";
 import { TarStream, type TarStreamInput } from "../deps.ts";
 
@@ -14,9 +14,13 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  await exists(src, { isFile: true });
+  const stat = await Deno.stat(src);
+  if(stat.isDirectory) {
+    throw new Error("The source path is a directory, not a file: ${src}")
+  }
+  using srcFile = await Deno.open(src);
   for await (
-    const entry of (await Deno.open(src)).readable.pipeThrough(new UntarStream())
+    const entry of srcFile.readable.pipeThrough(new UntarStream())
   ) {
     const filePath = path.resolve(dest, entry.path);
     if (options?.debug) console.log(filePath);
@@ -36,8 +40,8 @@ export async function compress(
   dest: string,
   options?: compressInterface,
 ): Promise<void> {
+  const stat = await Deno.stat(src);
   const inputs: TarStreamInput[] = [];
-  const stat = await Deno.lstat(src);
   if (stat.isFile) {
     inputs.push({
       type: "file",

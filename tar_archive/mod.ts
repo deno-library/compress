@@ -1,4 +1,4 @@
-import { Buffer, copy, ensureDir, exists, path } from "../deps.ts";
+import { Buffer, copy, ensureDir, path } from "../deps.ts";
 import type { compressInterface, uncompressInterface } from "../interface.ts";
 import { Tar } from "jsr:@std/archive@0.225.4/tar";
 import { Untar } from "jsr:@std/archive@0.225.4/untar";
@@ -14,7 +14,10 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  await exists(src, { isFile: true });
+  const stat = await Deno.stat(src);
+  if(stat.isDirectory) {
+    throw new Error("The source path is a directory, not a file: ${src}")
+  }
   using reader = await Deno.open(src, { read: true });
   const untar = new Untar(reader);
   for await (const entry of untar) {
@@ -44,7 +47,7 @@ export async function compress(
   options?: compressInterface,
 ): Promise<void> {
   const tar = new Tar();
-  const stat = await Deno.lstat(src);
+  const stat = await Deno.stat(src);
   if (stat.isFile) {
     await tar.append(path.basename(src), {
       filePath: src,
@@ -118,7 +121,7 @@ export async function compress(
 //   options?: compressInterface,
 // ): Promise<void> {
 //   const tar = new Tar();
-//   const stat = await Deno.lstat(src);
+//   const stat = await Deno.stat(src);
 //   if (stat.isFile) {
 //     await tar.append(path.basename(src), {
 //       filePath: src,

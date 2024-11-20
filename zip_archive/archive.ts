@@ -1,5 +1,5 @@
 import type { compressInterface, uncompressInterface } from "../interface.ts";
-import { path, exists } from "../deps.ts";
+import { path } from "../deps.ts";
 import {
   terminateWorkers,
   ZipReader,
@@ -17,7 +17,10 @@ export async function uncompress(
   dest: string,
   options?: uncompressInterface,
 ): Promise<void> {
-  await exists(src, { isFile: true });
+  const stat = await Deno.stat(src);
+  if(stat.isDirectory) {
+    throw new Error("The source path is a directory, not a file: ${src}")
+  }
   using srcFile = await Deno.open(src);
   const zipReader = new ZipReader(srcFile);
   try {
@@ -46,11 +49,10 @@ export async function compress(
   dest: string,
   options?: compressInterface,
 ): Promise<void> {
-  await exists(src, { isFile: true });
+  const stat = await Deno.stat(src);
   const zipper = new ZipWriterStream();
   zipper.readable.pipeTo((await Deno.create(dest)).writable);
 
-  const stat = await Deno.lstat(src);
   if (stat.isFile) {
     (await Deno.open(src)).readable.pipeTo(
       zipper.writable(path.basename(src)),
