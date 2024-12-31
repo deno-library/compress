@@ -258,3 +258,11 @@ await zip.uncompress("./test.tar.gz", "./dest");
 ```ts
 deno test --allow-read --allow-write
 ```
+
+## Contributors
+
+<a href="https://github.com/deno-library/compress/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=deno-library/compress" />
+</a>
+
+Thanks for their contributions!
