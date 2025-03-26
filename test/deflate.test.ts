@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import { assert } from "jsr:@std/assert";
 import { deflate, inflate } from "../mod.ts";
 
 Deno.test("deflate", () => {

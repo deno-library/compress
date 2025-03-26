@@ -11,6 +11,7 @@ Utilities to compress and uncompress for Deno!
 - [x] `gzip`
 - [x] `tgz`
 - [x] `zip`
+- [x] `brotli`
 
 ## Changelog
 
@@ -251,6 +252,19 @@ await zip.compress("./test", "./test.tar.gz", { excludeSrc: true });
 await zip.compress("./test.txt", "./test.tar.gz");
 // uncompress
 await zip.uncompress("./test.tar.gz", "./dest");
+```
+
+## `brotli`
+
+### Example
+
+```ts
+import { brotli } from "jsr:@deno-library/compress";
+const compressedBuffer = await brotli.compress(inputString);
+
+// deno version >= v2.1.8 / 2025.01.30
+// https://github.com/denoland/deno/pull/27815
+const uncompressedBuffer = await brotli.uncompress(compressedBuffer);
 ```
 
 # test

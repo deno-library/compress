@@ -1,5 +1,9 @@
 ## Changelog
 
+### v0.5.6 - 2025.03.26
+
+- feat: add Brotli support(#21)
+
 ### v0.5.5 - 2024.11.20
 
 - fix: fix exists usage error

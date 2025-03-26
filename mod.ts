@@ -1,6 +1,7 @@
 export * as tar from "./tar/mod.ts";
 export * as tgz from "./tgz/mod.ts";
 export * as zip from "./zip/mod.ts";
+export * as brotli from "./brotli/mod.ts";
 export {
   gunzipFile,
   gzipFile,
