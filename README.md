@@ -261,11 +261,15 @@ await zip.uncompress("./test.tar.gz", "./dest");
 ```ts
 import { brotli } from "jsr:@deno-library/compress";
 const compressedBuffer = await brotli.compress(inputString);
+//const compressedBuffer = brotli.compressSync(inputString);
 
 // deno version >= v2.1.8 / 2025.01.30
 // https://github.com/denoland/deno/pull/27815
 const uncompressedBuffer = await brotli.uncompress(compressedBuffer);
+// const uncompressedBuffer = brotli.uncompressSync(compressedBuffer);
 ```
+
+[brotli example file](test/brotli.test.ts)
 
 # test
 
